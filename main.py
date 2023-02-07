@@ -76,8 +76,48 @@ def checkPassword(password):
     return False
 
 
-def lianneFunc():
-    print()
+def findJob():
+    print("under construction")
+
+
+def findPeople():
+    print("under construction")
+
+
+def selectSkill():
+    skill = input("Please select a skill to learn from the list:\n1-Time management\n2-Teamwork\n3-Written communication\n4-Verbal communication\n5-Project management\n6-Return to main menu\n")
+ 
+    match skill:
+        case '1':
+            print("under construction")
+        case '2':
+            print("under construction")
+        case '3':
+            print("under construction")
+        case '4':
+            print("under construction")
+        case '5':
+            print("under construction")
+        case '6':
+            selectOption()
+        case _:
+            print("Not a valid option")
+            exit(-1)
+
+          
+def selectOption():
+    option = input("Please select from the following options:\n1-Find a job/internship\n2-Find someone you know\n3-Learn a new skill\n")
+         
+    match option:
+        case '1':
+            findJob()
+        case '2':
+            findPeople()
+        case '3':
+            selectSkill()
+        case _:
+            print("Not a valid option")
+            exit(-1)
 
 
 def main():
@@ -95,7 +135,7 @@ def main():
         exit(-1)
 
     if loginSuccess:
-        lianneFunc()
+        selectOption()
 
 
 main()
