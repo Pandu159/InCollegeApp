@@ -69,8 +69,7 @@ def checkPassword(password):
                 has_digit = True
             elif char.isupper():
                 has_upper = True
-            elif char in "!@#$%^&*()_+-=[]{}|;':\,.<>/?":
-                has_special = True
+        hasSpecial = any(char in "!@#$%^&*()_+-=[]{}|;':,.<>/?" for char in password)
         if has_upper and has_digit and has_special:
             return True
     return False
@@ -86,39 +85,34 @@ def findPeople():
 
 def selectSkill():
     skill = input("Please select a skill to learn from the list:\n1-Time management\n2-Teamwork\n3-Written communication\n4-Verbal communication\n5-Project management\n6-Return to main menu\n")
- 
-    match skill:
-        case '1':
-            print("under construction")
-        case '2':
-            print("under construction")
-        case '3':
-            print("under construction")
-        case '4':
-            print("under construction")
-        case '5':
-            print("under construction")
-        case '6':
-            selectOption()
-        case _:
-            print("Not a valid option")
-            exit(-1)
+    if skill == 1:
+        print("under construction")
+    elif skill == 2:
+        print("under construction")
+    elif skill == 3:
+        print("under construction")
+    elif skill == 4:
+        print("under construction")
+    elif skill == 5:
+        print("under construction")
+    elif skill == 6:
+        selectOption()
+    else:
+        print("Not a valid option")
+        exit(-1)
 
-          
 def selectOption():
     option = input("Please select from the following options:\n1-Find a job/internship\n2-Find someone you know\n3-Learn a new skill\n")
-         
-    match option:
-        case '1':
-            findJob()
-        case '2':
-            findPeople()
-        case '3':
-            selectSkill()
-        case _:
-            print("Not a valid option")
-            exit(-1)
 
+    if option == 1:
+        findJob()
+    elif option == 2:
+        findPeople()
+    elif option == 3:
+        selectSkill()
+    else:
+        print("Not a valid option")
+        exit(-1)
 
 def main():
     print("Welcome to InCollege!")
