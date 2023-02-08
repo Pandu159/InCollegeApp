@@ -69,7 +69,7 @@ def checkPassword(password):
                 has_digit = True
             elif char.isupper():
                 has_upper = True
-        hasSpecial = any(char in "!@#$%^&*()_+-=[]{}|;':,.<>/?" for char in password)
+        has_special = any(char in "!@#$%^&*()_+-=[]{}|;':,.<>/?" for char in password)
         if has_upper and has_digit and has_special:
             return True
     return False
@@ -102,7 +102,7 @@ def selectSkill():
         exit(-1)
 
 def selectOption():
-    option = input("Please select from the following options:\n1-Find a job/internship\n2-Find someone you know\n3-Learn a new skill\n")
+    option = int(input("Please select from the following options:\n1-Find a job/internship\n2-Find someone you know\n3-Learn a new skill\n"))
 
     if option == 1:
         findJob()

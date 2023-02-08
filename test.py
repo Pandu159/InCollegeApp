@@ -1,5 +1,5 @@
 import json
-from main import selectSkill, readUsers, writeUser, checkPassword, signIn, findJob, findPeople, selectOption
+from main import *
 
 def test_readUsers():
     data = [{"username": "user1", "password": "Test123@"}]
@@ -36,36 +36,36 @@ def test_findPeople():
     pass
 
 def test_main():
-    selection=[0, 1]
-    if selection==0:
-        test_signUp()
-    elif selection==1:
-        signIn()
+    test_signUp()
+    test_signIn()
 
 def test_signUp():
+    username = "user1"
+    password = "Test123@"
     result = readUsers()
     if len(result) > 5:
         assert "All permitted accounts have been created, please come back later."
     else:
-        test_writeUser()
+        writeUser(username, password)
         assert "Successfully Signed up"
 
 def test_signIn():
-    result = readUsers()
-    if len(result) > 5:
-        print("All permitted accounts have been created, please come back later.")
-    else:
-        test_writeUser()
+    username = "user1"
+    password = "Test123@"
+    if signIn():
         assert "Successfully Signed up"
+    else:
+        assert "User information invalid. Please enter again."
+        assert test_selectOption()
 
 def test_selectOption():
     option = [1,2,3]
     if option == 1:
-        findJob()
+        test_findJob()
     elif option == 2:
-        findPeople()
+        test_findPeople()
     elif option == 3:
-        selectSkill()
+        test_selectSkill()
 
 def test_selectSkill():
     skill = [1,2,3, 4, 5, 6]
@@ -80,6 +80,6 @@ def test_selectSkill():
     elif skill == 5:
         print("under construction")
     elif skill == 6:
-        selectOption()
+        test_selectOption()
 
-test_main()
+#test_main()
