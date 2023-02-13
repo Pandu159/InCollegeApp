@@ -46,10 +46,11 @@ def signUp():
     writeUser(username, password, firstName, lastName)
 
     print("Successfully signed up!")
-    return True
+    return firstName + " " + lastName
 
 
 def signIn():
+
     while True:
         username = input("Please input a username: ")
         password = input("Please input a password: ")
@@ -59,7 +60,8 @@ def signIn():
             if username == user["username"]:
                 if password == user["password"]:
                     print("Successfully logged in!")
-                    return True
+                    fullName = user["firstName"] + " " + user["lastName"]
+                    return fullName
         print("User information invalid. Please enter again. ")
 
 
