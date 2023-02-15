@@ -9,6 +9,7 @@ def test_homeScreen(capsys):
     out, err = capsys.readouterr()
     message = "Welcome to InCollege!\n"
     message += "Meet Jake, a recent college grad in marketing who found out about InCollege at a career fair.\n"
+    message += "After creating his profile, connecting with industry professionals, and joining related groups, Jake received a message from a recruiter on InCollege, who was impressed by his profile and wanted to interview him.\n"
     message += "He aced the interview and got the job on the spot. Jake's success shows the value of using InCollege.\n"
     assert message == out
 
