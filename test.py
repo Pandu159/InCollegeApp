@@ -109,9 +109,31 @@ def test_createJob(capsys, monkeypatch, test_inputs, messages) -> None:
     except IndexError:
         out, err = capsys.readouterr()
         assert messages in out
+        
+def test_getJobs():
+    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100", "Name": "Tom Smith"}]
+    with open("jobs.json", "w") as f:
+        json.dump(data, f)
+
+    result = getJobs()
+    assert result == data
+
+
+def test_printJobs(capsys):
+    printJobs()
+    out, err = capsys.readouterr()
+
+    message = 'Job: 1\n\n'
+    message += 'Title: Engineer\n'
+    message += 'Description: Good job\n'
+    message += 'Employer: USF\n'
+    message += 'Location: Tampa\n'
+    message += 'Salary: 100\n\n\n'
+    assert message == out        
+
 
 @pytest.mark.parametrize("test_inputs, messages",
-                         [(['Y'],
+                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],
                            "Job created! Returning back to options...\n")])
 def test_findJob(capsys, monkeypatch, test_inputs, messages) -> None:
     try:
