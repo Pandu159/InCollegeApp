@@ -99,19 +99,28 @@ def test_selectSkill(capsys, monkeypatch, test_inputs, messages) -> None:
         out, err = capsys.readouterr()
         assert messages in out
 
-@pytest.mark.parametrize("test_inputs, messages",
-                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'],
+@pytest.mark.parametrize("test_inputs, test_inputs1, messages",
+                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'], ['Dentist', 'Great job', 'FIU', 'Miami', '200'],
                            "Job created! Returning back to options...\n")])
-def test_createJob(capsys, monkeypatch, test_inputs, messages) -> None:
+def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
         createJob('Tom Smith')
     except IndexError:
         out, err = capsys.readouterr()
         assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        createJob('John Doe')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
         
 def test_getJobs():
-    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100", "Name": "Tom Smith"}]
+    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100", "Name": "Tom Smith"},
+           {"title": "Dentist", "description": "Great job", "employer": "FIU", "location": "Miami", "salary": "200", "Name": "John Doe"} ]
     with open("jobs.json", "w") as f:
         json.dump(data, f)
 
@@ -129,13 +138,20 @@ def test_printJobs(capsys):
     message += 'Employer: USF\n'
     message += 'Location: Tampa\n'
     message += 'Salary: 100\n\n\n'
-    assert message == out        
+    message += 'Job: 2\n\n'
+    message += 'Title: Dentist\n'
+    message += 'Description: Great job\n'
+    message += 'Employer: FIU\n'
+    message += 'Location: Miami\n'
+    message += 'Salary: 200\n\n\n'
+    assert message == out     
 
 
-@pytest.mark.parametrize("test_inputs, messages",
-                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],
-                           "Job created! Returning back to options...\n")])
-def test_findJob(capsys, monkeypatch, test_inputs, messages) -> None:
+@pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
+                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'], 
+                         ['Y','Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'], 
+                         ['Y','Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
+def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
         findJob('Tom Smith')
@@ -143,10 +159,44 @@ def test_findJob(capsys, monkeypatch, test_inputs, messages) -> None:
         out, err = capsys.readouterr()
         assert messages in out
 
-@pytest.mark.parametrize("test_inputs, messages",
-                         [(['Tom', 'Smith'],
-                           "They are a part of the InCollege system\n")])
-def test_findPeople(capsys, monkeypatch, test_inputs, messages) -> None:
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        findJob('John Doe')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs2.pop(0))
+        findJob('John Doe')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs3.pop(0))
+        findJob('John Doe')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out   
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs4.pop(0))
+        findJob('Tom Smith')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    findJob('Tom Smith')
+    out, err = capsys.readouterr()
+    assert "Job list is full! Returning to options..." in out
+    
+   
+
+@pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
+                         [(['Tom', 'Smith'],['Jim', 'Frey'],
+                           "They are a part of the InCollege system\n", "They are not yet a part of the InCollege system")])
+def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, messages1) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
         findPeople()
@@ -154,3 +204,9 @@ def test_findPeople(capsys, monkeypatch, test_inputs, messages) -> None:
         out, err = capsys.readouterr()
         assert messages in out
 
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        findPeople()
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages1 in out
