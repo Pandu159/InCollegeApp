@@ -148,9 +148,9 @@ def test_printJobs(capsys):
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
-                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'], 
-                         ['Y','Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'], 
-                         ['Y','Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
+                         [(['Y', 'Engineer', 'Good job', 'USF', 'Tampa', '100'], ['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'],
+                         ['Y', 'Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'],
+                         ['Y', 'Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
 def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
