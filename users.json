@@ -1,1 +1,1 @@
-[{"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith"}]
+[{"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English"}, {"username": "user1", "password": "Test123@", "firstName": "a", "lastName": "b", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]

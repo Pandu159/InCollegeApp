@@ -67,21 +67,25 @@ def selectInCollegeImportant(i, uName):
 
     link = int(input("Please select a link from the following:\n 1 - Copyright Notice\n 2 - About\n 3 - Accessibility\n 4 - User Agreement\n 5 - Privacy Policy\n "
                      "6 - Cookie Policy\n 7 - Brand Policy\n 8 - Languages\n 9 - Return to previous screen\n"))
+    m=i
     # Copyright Notice
     if link == 1:
         print("Copyright Notice: Developers of InCollege App")
+        print("Copyright © 2023 InCollege. All rights reserved.\nAll materials on this website, including but not limited to text, graphics, logos, images, and software, are the property of InCollege and are protected by copyright laws. InCollege prohibits any reproduction, modification, distribution, transmission, or display of any content on this website without prior written permission.\n")
+        print("By using this website, you acknowledge that you have read and understood this copyright notice and agree to abide by its terms and conditions.")
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # About
     elif link == 2:
-        print("About screen")
+        print("About\nIntroducing InCollege, a platform designed specifically for college students to connect and grow their professional networks.\nYou are about to embark on an exciting journey filled with opportunities and challenges. By connecting you with other like-minded individuals, mentors, and employers, we are here to support you every step of the way.\n")
+        print("Our platform is designed to help you build your professional network, showcase your skills and experiences, and discover exciting career opportunities whether you're just starting your academic career or nearing graduation.")
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # Accessibility
     elif link == 3:
@@ -89,15 +93,17 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # User Agreement
     elif link == 4:
         print("User Agreement = yes")
+        print("This User Agreement regulates your use of the Company's website and is a legal agreement between you and InCollege. You agree to be bound by this Agreement by accessing or using the Website. ")
+        print("Use of the Website. The Company provides you a non-exclusive, non-transferable, revocable license to access and use the Website solely for personal, non-commercial purposes. You agree not to use the Website for any illegal purpose or in any way that could harm, disable, overburden, or impair it.")
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # Privacy Policy
     elif link == 5:
@@ -108,26 +114,34 @@ def selectInCollegeImportant(i, uName):
             if temp == "Y":
                 guestControls(uName)
         # Privacy Policy is listed
-        print("Privacy Policy")
+        print("Privacy Policy: ")
+        print("InCollege is committed to protecting your personal information. This Privacy Policy outlines how we collect, handle, and share personal information collected from you while using our website InCollege.")
+        print("We Gather Data. We may collect personal information, such as your name, email address, and phone number, as well as non-personal information, such as your IP address and browsing history, when you visit our Website.")
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # Cookie Policy
     elif link == 6:
-        print("Cookie Policy")
+        print("Cookie Policy: ")
+        print("On our website, InCollege uses cookies and similar technologies to give a better user experience and to better understand how users use our website. This Cookie Policy defines cookies and how we utilize them.")
+        print("What exactly are cookies? When you visit a website, little text files called cookies are placed on your device. Cookies enable a website to identify your device and save information about your preferences or previous actions. Cookies are divided into two types: session cookies, which are temporary and expire when you close your browser, and persistent cookies, which remain on your device until they expire or are erased.")
+        print("How We Make Use of Cookies. We use cookies to enhance your experience on our site and to better understand how users interact with it.")
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # Brand Policy
     elif link == 7:
-        print("Brand Policy")
+        print("Brand Policy: ")
+        print("InCollege has built a powerful brand that embodies our core beliefs, mission, and quality. This Brand Policy explains how to use our brand assets, such as our logo, name, and trademarks.")
+        print("Use of Our Brand Assets. Our brand assets, such as our logo, name, and trademarks, are precious to us. Only with our permission and in compliance with this Policy do we allow others to utilize our brand assets.")
+        print("Use of Logo. Our logo is a recognized trademark with copyright protection. You may only use our logo with our express written permission and in accordance with our requirements.")
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(1, uName)
+            selectInCollegeImportant(m, uName)
 
     # Languages
     elif link == 8:
@@ -144,7 +158,7 @@ def selectInCollegeImportant(i, uName):
             # Return to options
             select = int(input("0 - Return to previous screen: "))
             if select == 0:
-                selectInCollegeImportant(1, uName)
+                selectInCollegeImportant(m, uName)
 
     # Return to previous screen
     elif link == 9:
@@ -157,7 +171,7 @@ def selectInCollegeImportant(i, uName):
     # Invalid option
     else:
         print("Invalid option... Showing options again...")
-        selectInCollegeImportant(1, uName)
+        selectInCollegeImportant(m, uName)
 
 
 def guestControls(uName):
