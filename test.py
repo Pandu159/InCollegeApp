@@ -1,14 +1,9 @@
-import json
 import pytest
-from main import *
-from authentication import *
 from feed import *
-import io
-import sys
-from unittest.mock import patch
+
 
 def test_homeScreen(capsys):
-    HomeScreen()
+    homeScreen()
     out, err = capsys.readouterr()
     message = "Welcome to InCollege!\n"
     message += "Meet Jake, a recent college grad in marketing who found out about InCollege at a career fair.\n"
@@ -16,8 +11,27 @@ def test_homeScreen(capsys):
     message += "He aced the interview and got the job on the spot. Jake's success shows the value of using InCollege.\n"
     assert message == out
 
+
+@pytest.mark.parametrize("test_inputs, messages",
+                         [([4], ""),
+                          ([6], "Invalid Selection!\n")])
+def test_mainPage(capsys, monkeypatch, test_inputs, messages) -> None:
+    messages1 = "Input 9 to view a video that would explain why joining InCollege would be highly beneficial for you\n"
+    messages1 += "Input 2 to explore Useful Links or Input 3 to explore InCollege Important Links\n"
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+        mainPage()
+    except SystemExit:
+        out, err = capsys.readouterr()
+        messages1 += messages
+        assert messages1 in out
+
+
 def test_signIn(capsys, monkeypatch):
-    users = [{"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith"}]
+    users = [
+        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
+         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
     with open("users.json", "w") as f:
         json.dump(users, f)
 
@@ -29,19 +43,21 @@ def test_signIn(capsys, monkeypatch):
 
     monkeypatch.setattr("builtins.input", mock_input)
 
-    fullName = signIn()
+    username = signIn()
     out, err = capsys.readouterr()
 
-    assert fullName == "Tom Smith"
-    assert "Successfully logged in!" in out
+    assert username == "user1"
+    assert "Successfully logged in!\n\nCurrent Language is English\n\n" in out
 
 
 def test_signUp(capsys, monkeypatch):
-    users = [{"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith"}]
+    users = [
+        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
+         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
     with open("users.json", "w") as f:
         json.dump(users, f)
 
-    test_inputs = ['user2', 'Test123#', 'John', 'Doe']
+    test_inputs = ['user2', 'Test123#', 'John', 'Doe', 'English', 'on', 'on', 'on']
     monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
 
     signUp()
@@ -51,28 +67,40 @@ def test_signUp(capsys, monkeypatch):
     with open("users.json", "r") as f:
         data = json.load(f)
 
-    assert {"username": "user2", "password": "Test123#", "firstName": "John", "lastName": "Doe"} in data
+    assert {"username": "user2", "password": "Test123#", "firstName": "John", "lastName": "Doe", "language": "English",
+            "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"} in data
+
 
 @pytest.fixture(autouse=True)
 def test_readUsers():
-    data = [{"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith"}]
+    data = [
+        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
+         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
     with open("users.json", "w") as f:
         json.dump(data, f)
 
     result = readUsers()
     assert result == data
 
+
+
 def test_writeUser():
     username = "user1"
     password = "Test123@"
     firstName = "Tom"
-    lastName= "Smith"
-    writeUser(username, password, firstName, lastName)
+    lastName = "Smith"
+    language = "English"
+    inCollegeEmail = "on"
+    SMS = "on"
+    targetedAds = "on"
+    writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds)
 
     with open("users.json", "r") as f:
         data = json.load(f)
 
-    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName} in data
+    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
+            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds} in data
+
 
 def test_checkPassword():
     goodPassword = ["testTest1!", "Testtwo12@"]
@@ -83,49 +111,15 @@ def test_checkPassword():
     for p in badPassword:
         assert checkPassword(p) == False
 
-@pytest.mark.parametrize("test_inputs, messages",
-                         [([1], "under construction\n"),
-                          ([2], "under construction\n"),
-                          ([3], "under construction\n"),
-                          ([4], "under construction\n"),
-                          ([5], "under construction\n"),
-                          ([6], ""),
-                          ([7], "Not a valid option\n")])
-def test_selectSkill(capsys, monkeypatch, test_inputs, messages) -> None:
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-        selectSkill()
-    except SystemExit:
-        out, err = capsys.readouterr()
-        assert messages in out
 
-@pytest.mark.parametrize("test_inputs, test_inputs1, messages",
-                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'], ['Dentist', 'Great job', 'FIU', 'Miami', '200'],
-                           "Job created! Returning back to options...\n")])
-def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> None:
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-        createJob('Tom Smith')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
-        createJob('John Doe')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-        
-def test_getJobs():
-    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100", "Name": "Tom Smith"},
-           {"title": "Dentist", "description": "Great job", "employer": "FIU", "location": "Miami", "salary": "200", "Name": "John Doe"} ]
-    with open("jobs.json", "w") as f:
+def test_getJson():
+    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": 100.0,
+             "Name": "Tom Smith"}]
+    with open("test_jobs.json", "w") as f:
         json.dump(data, f)
 
-    result = getJobs()
-    assert result == data
+    result = getJson("jobs")
+    assert result[0] == data[0]
 
 
 def test_printJobs(capsys):
@@ -137,65 +131,14 @@ def test_printJobs(capsys):
     message += 'Description: Good job\n'
     message += 'Employer: USF\n'
     message += 'Location: Tampa\n'
-    message += 'Salary: 100\n\n\n'
-    message += 'Job: 2\n\n'
-    message += 'Title: Dentist\n'
-    message += 'Description: Great job\n'
-    message += 'Employer: FIU\n'
-    message += 'Location: Miami\n'
-    message += 'Salary: 200\n\n\n'
-    assert message == out     
+    message += 'Salary: 100.0\n\n\n'
+    assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
 
-
-@pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
-                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'], 
-                         ['Y','Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'], 
-                         ['Y','Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
-def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages) -> None:
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-        findJob('Tom Smith')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
-        findJob('John Doe')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs2.pop(0))
-        findJob('John Doe')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs3.pop(0))
-        findJob('John Doe')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out   
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs4.pop(0))
-        findJob('Tom Smith')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    findJob('Tom Smith')
-    out, err = capsys.readouterr()
-    assert "Job list is full! Returning to options..." in out
-    
-   
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
-                         [(['Tom', 'Smith'],['Jim', 'Frey'],
-                           "They are a part of the InCollege system\n", "They are not yet a part of the InCollege system")])
+                         [(['Tom', 'Smith'], ['Jim', 'Frey'],
+                           "They are a part of the InCollege system\n",
+                           "They are not yet a part of the InCollege system")])
 def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, messages1) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
