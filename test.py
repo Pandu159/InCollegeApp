@@ -83,7 +83,6 @@ def test_readUsers():
     assert result == data
 
 
-
 def test_writeUser():
     username = "user1"
     password = "Test123@"
@@ -153,3 +152,28 @@ def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, me
     except IndexError:
         out, err = capsys.readouterr()
         assert messages1 in out
+
+
+def test_selectUsefulLinks(monkeypatch, capsys):
+    pass
+
+def test_selectInCollegeImportant():
+    pass
+
+def test_guestControls():
+    pass
+
+def test_selectGeneral():
+    pass
+
+def test_createJob():
+    pass
+
+def test_selectSkill():
+    pass
+
+def selectOption():
+    pass
+
+def updateUserInfo():
+    pass
