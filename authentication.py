@@ -9,19 +9,31 @@ def readUsers():
         return []
 
 
-def writeUser(username, password, firstName, lastName):
+def writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds):
     data = readUsers()
 
-    data.append({"username": username, "password": password, "firstName": firstName, "lastName": lastName})
+    data.append({"username": username, "password": password, "firstName": firstName, "lastName": lastName,
+                 "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds})
     with open("users.json", "w") as f:
         json.dump(data, f)
+
+
+def updateUserInfo(username, updateParam, updateInfo):
+
+    users = readUsers()
+
+    for user in users:
+        if username == user["username"]:
+            with open("users.json", "w") as f:
+                user[updateParam] = updateInfo
+                json.dump(users, f)
 
 
 def signUp():
     users = readUsers()
     if len(users) >= 5:
         print("All permitted accounts have been created, please come back later.\n")
-        return False
+        return None
 
     while True:
         username = input("Please input a username: ")
@@ -43,13 +55,21 @@ def signUp():
     firstName = input("Please input your first name: ")
     lastName = input("Please input your last name: ")
 
-    writeUser(username, password, firstName, lastName)
+    # Epic 3 added default language as English
+    # and inCollegeEmail, SMS, and targetedAds "on" as default
+    language = "English"
+    inCollegeEmail = "on"
+    SMS = "on"
+    targetedAds = "on"
+
+    writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds)
 
     print("Successfully signed up!")
-    return True
+    return username
 
 
 def signIn():
+
     while True:
         username = input("Please input a username: ")
         password = input("Please input a password: ")
@@ -58,8 +78,10 @@ def signIn():
         for user in users:
             if username == user["username"]:
                 if password == user["password"]:
-                    print("Successfully logged in!")
-                    return True
+                    print("Successfully logged in!\n")
+                    language = user["language"]
+                    print(f"Current Language is {language}\n")
+                    return username
         print("User information invalid. Please enter again. ")
 
 
