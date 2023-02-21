@@ -1,4 +1,4 @@
-import pytest
+import pytest 
 from feed import *
 
 
@@ -100,6 +100,23 @@ def test_writeUser():
     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
             "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds} in data
 
+def test_updateUserInfo():
+    username = "user1"
+    password = "Test123@"
+    firstName = "Tom"
+    lastName = "Smith"
+    language = "English"
+    updateParam = "inCollegeEmail"
+    updateInfo = "off"		
+    SMS = "on"
+    targetedAds = "on"
+    updateUserInfo(username, updateParam, updateInfo)
+    with open("users.json", "r") as f:
+        data = json.load(f)
+
+    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
+            "language": language, "inCollegeEmail": "off", "SMS": SMS, "targetedAds": targetedAds} in data
+
 
 def test_checkPassword():
     goodPassword = ["testTest1!", "Testtwo12@"]
@@ -112,13 +129,33 @@ def test_checkPassword():
 
 
 def test_getJson():
-    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": 100.0,
+    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100",
              "Name": "Tom Smith"}]
     with open("test_jobs.json", "w") as f:
         json.dump(data, f)
 
     result = getJson("jobs")
     assert result[0] == data[0]
+
+
+@pytest.mark.parametrize("test_inputs, test_inputs1, messages",
+                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'], ['Dentist', 'Great job', 'FIU', 'Miami', '200'],
+                           "Job created! Returning back to options...\n")])
+def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> None:
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+        createJob("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        createJob("user2")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
 
 
 def test_printJobs(capsys):
@@ -130,8 +167,53 @@ def test_printJobs(capsys):
     message += 'Description: Good job\n'
     message += 'Employer: USF\n'
     message += 'Location: Tampa\n'
-    message += 'Salary: 100.0\n\n\n'
+    message += 'Salary: 100\n\n\n'
     assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
+
+
+@pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
+                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'], 
+                         ['Y','Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'], 
+                         ['Y','Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
+def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages) -> None:
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+        findJob('user1')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        findJob('user2')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs2.pop(0))
+        findJob('user2')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs3.pop(0))
+        findJob('user2')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out   
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs4.pop(0))
+        findJob('user1')
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    findJob('user1')
+    out, err = capsys.readouterr()
+    assert "Job list is full! Returning to options..." in out
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
@@ -154,26 +236,46 @@ def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, me
         assert messages1 in out
 
 
+@pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
+                         [(['1', '0', '2', '0', '3', '0'], ['4', '0', '5', '0'],
+                           "under construction\nunder construction\nunder construction\n", 
+                           "under construction\nunder construction\n")])
+def test_selectSkill(capsys, monkeypatch, test_inputs, test_inputs1, messages, messages1) -> None:
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+        selectSkill("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        selectSkill("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages1 in out
+
+
+@pytest.mark.parametrize("test_inputs, messages",
+                         [(['1', '2', '3', '9', '12'], 
+                           "InCollege Email successfully turned off, returning to previous menu...\nSMS successfully turned off, returning to previous menu...\nTargeted Advertising successfully turned off, returning to previous menu...\nReturning to previous menu...\nInvalid option, returning to previous menu...\n")])
+def test_guestControls(capsys, monkeypatch, test_inputs, messages) -> None:
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+        guestControls("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert messages in out
+
+
 def test_selectUsefulLinks(monkeypatch, capsys):
     pass
 
 def test_selectInCollegeImportant():
     pass
 
-def test_guestControls():
-    pass
-
 def test_selectGeneral():
     pass
 
-def test_createJob():
-    pass
-
-def test_selectSkill():
-    pass
-
 def selectOption():
-    pass
-
-def updateUserInfo():
     pass
