@@ -285,6 +285,7 @@ def createJob(uName):
     # then appends to json file
     jobs = getJson("jobs")
     users = readUsers()
+    name = "default"
     for user in users:
         if uName == user["username"]:
             name = user["firstName"] + " " + user["lastName"]
