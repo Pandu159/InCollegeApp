@@ -3,7 +3,7 @@
 from feed import *
 
 
-def main():
+def main(): #Added random comment
     homeScreen()
     mainPage()
 
