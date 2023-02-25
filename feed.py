@@ -351,6 +351,7 @@ def findPeople():
     return False
 
 
+#skills under construction
 def selectSkill(uName):
     skill = int(input("Please select a skill to learn from the list:\n1-Time management\n2-Teamwork\n3-Written communication\n4-Verbal communication\n5-Project management\n6-Return to Options menu\n"))
     if skill == 1:
