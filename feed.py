@@ -388,7 +388,7 @@ def selectSkill(uName):
 
 
 def selectOption(uName):
-    option = int(input("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links\n0 - To Log Out\n"))
+    option = int(input("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links \n6 - Check pending friends request\n0 - To Log Out\n"))
 
     if option == 1:
         findJob(uName)
@@ -405,10 +405,63 @@ def selectOption(uName):
         selectUsefulLinks(1, uName)
     elif option == 5: # InCollege Important Links
         selectInCollegeImportant(1, uName)
-
+    elif option == 6:
+        # Get the list of friend requests for the user
+        checkFriendRequests(uName)
     elif option == 0:
         print("User logged out")
         exit(1)
     else:
         print("Not a valid option")
         exit(-1)
+
+def searchUsers():
+    lastName = input("Please enter the last name or skip: ")
+    university = input("Please enter the University name or skip: ")
+    major = input("Please enter the major name or skip: ")
+
+    users = readUsers()
+    filteredUsers = []
+    for user in users:
+        if lastName is not None and user["lastName"] != lastName:
+            continue
+        if university is not None and user["university"] != university:
+            continue
+        if major is not None and user["major"] != major:
+            continue
+        filteredUsers.append(user)
+    return filteredUsers
+
+def addFriend(uName, friendUsername):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            user["friends"].append(friendUsername)
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+
+def checkFriendRequests(uName):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            if user["friendsRequest"]:
+                print("You have pending friend requests:")
+                for friendRequest in user["friendsRequest"]:
+                    print(friendRequest)
+                while True:
+                    response = input("Do you want to accept or reject the friend request? (A/R): ").upper()
+                    if response == "A":
+                        friendName = user["friendsRequest"].pop(0)
+                        addFriend(uName, friendName)
+                        addFriend(friendName, uName)
+                        print(f"{friendName} added as a friend.")
+                        break
+                    elif response == "R":
+                        user["friendsRequest"].pop(0)
+                        break
+                    else:
+                        print("Invalid response.")
+                        continue
+            else:
+                print("You have no pending friend requests.")
+                break

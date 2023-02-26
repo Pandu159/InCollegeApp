@@ -9,12 +9,12 @@ def readUsers():
     except FileNotFoundError:
         return []
 
-
-def writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds):
+def writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds, friends, friendsRequest):
     data = readUsers()
 
     data.append({"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-                 "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds})
+                 "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
+                 "friends":friends, "friendRequests": friendsRequest})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -32,7 +32,7 @@ def updateUserInfo(username, updateParam, updateInfo):
 
 def signUp():
     users = readUsers()
-    if len(users) >= 5:
+    if len(users) >= 10:
         print("All permitted accounts have been created, please come back later.\n")
         return None
 
@@ -62,8 +62,10 @@ def signUp():
     inCollegeEmail = "on"
     SMS = "on"
     targetedAds = "on"
+    friends = [],
+    friendsRequest = []
 
-    writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds)
+    writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds, friends, friendsRequest)
 
     print("Successfully signed up!")
     return username
