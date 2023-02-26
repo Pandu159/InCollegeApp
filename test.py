@@ -1,4 +1,4 @@
-import pytest 
+import pytest
 from feed import *
 
 
@@ -100,6 +100,7 @@ def test_writeUser():
     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
             "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds} in data
 
+
 def test_updateUserInfo():
     username = "user1"
     password = "Test123@"
@@ -107,7 +108,7 @@ def test_updateUserInfo():
     lastName = "Smith"
     language = "English"
     updateParam = "inCollegeEmail"
-    updateInfo = "off"		
+    updateInfo = "off"
     SMS = "on"
     targetedAds = "on"
     updateUserInfo(username, updateParam, updateInfo)
@@ -129,7 +130,7 @@ def test_checkPassword():
 
 
 def test_getJson():
-    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": "100",
+    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": 100.0,
              "Name": "Tom Smith"}]
     with open("test_jobs.json", "w") as f:
         json.dump(data, f)
@@ -139,7 +140,8 @@ def test_getJson():
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages",
-                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'], ['Dentist', 'Great job', 'FIU', 'Miami', '200'],
+                         [(['Engineer', 'Good job', 'USF', 'Tampa', '100'],
+                           ['Dentist', 'Great job', 'FIU', 'Miami', '200'],
                            "Job created! Returning back to options...\n")])
 def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> None:
     try:
@@ -157,7 +159,6 @@ def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> 
         assert messages in out
 
 
-
 def test_printJobs(capsys):
     printJobs()
     out, err = capsys.readouterr()
@@ -167,15 +168,19 @@ def test_printJobs(capsys):
     message += 'Description: Good job\n'
     message += 'Employer: USF\n'
     message += 'Location: Tampa\n'
-    message += 'Salary: 100\n\n\n'
+    message += 'Salary: 100.0\n\n\n'
     assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
-                         [(['Y','Engineer', 'Good job', 'USF', 'Tampa', '100'],['Y','Dentist', 'Great job', 'FIU', 'Miami', '200'], 
-                         ['Y','Jornalist', 'Great job', 'FIU', 'Miami', '100'], ['Y','Nurse', 'Good job', 'FIU', 'Miami', '200'], 
-                         ['Y','Physician', 'Great job', 'USF', 'Tampa', '200'], "Job created! Returning back to options...\n")])
-def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages) -> None:
+                         [(['Y', 'Engineer', 'Good job', 'USF', 'Tampa', '100'],
+                           ['Y', 'Dentist', 'Great job', 'FIU', 'Miami', '200'],
+                           ['Y', 'Jornalist', 'Great job', 'FIU', 'Miami', '100'],
+                           ['Y', 'Nurse', 'Good job', 'FIU', 'Miami', '200'],
+                           ['Y', 'Physician', 'Great job', 'USF', 'Tampa', '200'],
+                           "Job created! Returning back to options...\n")])
+def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4,
+                 messages) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
         findJob('user1')
@@ -202,7 +207,7 @@ def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, t
         findJob('user2')
     except IndexError:
         out, err = capsys.readouterr()
-        assert messages in out   
+        assert messages in out
 
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs4.pop(0))
@@ -238,7 +243,7 @@ def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, me
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
                          [(['1', '0', '2', '0', '3', '0'], ['4', '0', '5', '0'],
-                           "under construction\nunder construction\nunder construction\n", 
+                           "under construction\nunder construction\nunder construction",
                            "under construction\nunder construction\n")])
 def test_selectSkill(capsys, monkeypatch, test_inputs, test_inputs1, messages, messages1) -> None:
     try:
@@ -257,8 +262,11 @@ def test_selectSkill(capsys, monkeypatch, test_inputs, test_inputs1, messages, m
 
 
 @pytest.mark.parametrize("test_inputs, messages",
-                         [(['1', '2', '3', '9', '12'], 
-                           "InCollege Email successfully turned off, returning to previous menu...\nSMS successfully turned off, returning to previous menu...\nTargeted Advertising successfully turned off, returning to previous menu...\nReturning to previous menu...\nInvalid option, returning to previous menu...\n")])
+                         [(['1', '2', '3', '9', '12'],
+                           "InCollege Email successfully turned off, returning to previous menu...\nSMS successfully "
+                           "turned off, returning to previous menu...\nTargeted Advertising successfully turned off, "
+                           "returning to previous menu...\nReturning to previous menu...\nInvalid option, "
+                           "returning to previous menu...\n")])
 def test_guestControls(capsys, monkeypatch, test_inputs, messages) -> None:
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
@@ -268,14 +276,154 @@ def test_guestControls(capsys, monkeypatch, test_inputs, messages) -> None:
         assert messages in out
 
 
-def test_selectUsefulLinks(monkeypatch, capsys):
-    pass
+@pytest.mark.parametrize("test_input1, test_input2, test_input3, test_message1, test_message2, test_message3",
+                         [(['2', '3', '4'], ['1', '2'], ['5'],
+                           "under construction\nunder construction\nunder construction\n",
+                           "We're here to help\n",
+                           "Please select from the following options:\n1 - Find a job/internship\n2 - Find someone "
+                           "you know\n3 - Learn a new skill\n4 - Useful Links \n5 - InCollege Important Links\n0 - To "
+                           "Log Out\n"
+                           )])
+def test_selectUsefulLinks(monkeypatch, capsys, test_input1, test_message1, test_input2, test_message2, test_input3,
+                           test_message3):
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
+        selectUsefulLinks(1, "user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message1 in out
 
-def test_selectInCollegeImportant():
-    pass
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input2.pop(0))
+        selectUsefulLinks(1, "user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message2 in out
 
-def test_selectGeneral():
-    pass
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input3.pop(0))
+        selectUsefulLinks(1, "user1")
+    except TypeError:
+        out, err = capsys.readouterr()
+        assert test_message3 in out
 
-def selectOption():
-    pass
+
+@pytest.mark.parametrize("test_input1, test_input2, test_input3, test_input4, test_input5, test_message1, "
+                         "test_message2, test_message3, test_message4, test_message5",
+                         [(['1', '0'], ['2', '0'], ['3', '0', '4', '0'], ['5', 'N', '0'], ['6', '0'],
+                           # test message 1
+                           "Copyright © 2023 InCollege. All rights reserved.\nAll materials on this website, "
+                           "including but not limited to text, graphics, logos, images, and software, "
+                           "are the property of InCollege and are protected by copyright laws. InCollege prohibits "
+                           "any reproduction, modification, distribution, transmission, or display of any content on "
+                           "this website without prior written permission.\n\nBy using this website, you acknowledge "
+                           "that you have read and understood this copyright notice and agree to abide by its terms "
+                           "and conditions.\n",
+                           # test message 2
+                           "About\nIntroducing InCollege, a platform designed specifically for college students to "
+                           "connect and grow their professional networks.\nYou are about to embark on an exciting "
+                           "journey filled with opportunities and challenges. By connecting you with other "
+                           "like-minded individuals, mentors, and employers, we are here to support you every step of "
+                           "the way.\n",
+                           # test message 3
+                           "Accessibility options\nUser Agreement = yes\nThis User Agreement regulates your use of "
+                           "the Company's website and is a legal agreement between you and InCollege. You agree to be "
+                           "bound by this Agreement by accessing or using the Website. \n"
+                           "Use of the Website. The Company provides you a non-exclusive, non-transferable, revocable "
+                           "license to access and use the Website solely for personal, non-commercial purposes. You "
+                           "agree not to use the Website for any illegal purpose or in any way that could harm, "
+                           "disable, overburden, or impair it.\n",
+                           # test message 4
+                           "Welcome user0!\n\nPrivacy Policy:\nInCollege is committed to protecting your personal "
+                           "information. This Privacy Policy outlines how we collect, handle, and share personal "
+                           "information collected from you while using our website InCollege.\n"
+                           "We Gather Data. We may collect personal information, such as your name, email address, "
+                           "and phone number, as well as non-personal information, such as your IP address and "
+                           "browsing history, when you visit our Website.\n",
+                           # test message 5
+                           "Cookie Policy:\nOn our website, InCollege uses cookies and similar technologies to give a "
+                           "better user experience and to better understand how users use our website. This Cookie "
+                           "Policy defines cookies and how we utilize them.\n"
+                           "What exactly are cookies? When you visit a website, little text files called cookies are "
+                           "placed on your device. Cookies enable a website to identify your device and save "
+                           "information about your preferences or previous actions. Cookies are divided into two "
+                           "types: session cookies, which are temporary and expire when you close your browser, "
+                           "and persistent cookies, which remain on your device until they expire or are erased.\n"
+                           "How We Make Use of Cookies. We use cookies to enhance your experience on our site and to "
+                           "better understand how users interact with it.\n"
+                           )])
+def test_selectInCollegeImportant(capsys, monkeypatch, test_input1, test_message1, test_input2, test_message2,
+                                  test_input3, test_message3, test_input4, test_message4, test_input5, test_message5):
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
+        selectInCollegeImportant(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message1 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input2.pop(0))
+        selectInCollegeImportant(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message2 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input3.pop(0))
+        selectInCollegeImportant(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message3 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input4.pop(0))
+        selectInCollegeImportant(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message4 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input5.pop(0))
+        selectInCollegeImportant(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message5 in out
+
+
+# options 5, 6, 7 are still under construction, this test unit must be updated to support
+# the rest of the cases once the code is finished
+@pytest.mark.parametrize("test_input1, test_input2, test_message1, test_message2",
+                         [(['2', '0', '3', '0', '4', '0'], ['5', '0', '6', '0', '7', '0'],
+                           "We're here to help\nIn College: Welcome to In College, the world's largest college "
+                           "student network with many users in many countries and territories worldwide.\n"
+                           "In College Pressroom: Stay on top of the latest news, updates, and reports\n",
+                           "Under construction\nUnder construction\nUnder construction\n")])
+def test_selectGeneral(capsys, monkeypatch, test_input1, test_input2, test_message1, test_message2):
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
+        selectGeneral(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message1 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input2.pop(0))
+        selectGeneral(0, "user0")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert test_message2 in out
+
+
+# Needs to be updated, something wrong with the test_input1
+@pytest.mark.parametrize("test_input1, test_message1",
+                         [(['3', '1'],
+                           "Please select from the following options:\n1 - Find a job/internship\n2 - Find someone "
+                           "you know\n3 - Learn a new skill\n4 - Useful Links \n5 - InCollege Important Links\n0 - To "
+                           "Log Out")])
+def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
+        selectOption("user1")
+    except TypeError:
+        out, err = capsys.readouterr()
+        assert test_message1 in out
