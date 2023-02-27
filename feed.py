@@ -436,7 +436,7 @@ def selectOption(uName):
         print("Not a valid option")
         exit(-1)
 
-
+# Displays pending request when user logs in
 def requestDisplay(uName):
     users = readUsers()
     for user in users:
