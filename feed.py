@@ -1,4 +1,3 @@
-# feed
 from authentication import *
 
 
@@ -41,19 +40,17 @@ def selectUsefulLinks(i, uName):
     link = int(input(
         "Please select a skill to learn from the list:\n1-General\n2-Browse InCollege\n3-Business Solutions\n4-Directories\n5-Return to previous screen\n"))
 
-    m = i
-
     if link == 1:
-        selectGeneral(m, uName)
+        selectGeneral(i, uName)
     elif link == 2:
         print("under construction")
-        selectUsefulLinks(m, uName)
+        selectUsefulLinks(i, uName)
     elif link == 3:
         print("under construction")
-        selectUsefulLinks(m, uName)
+        selectUsefulLinks(i, uName)
     elif link == 4:
         print("under construction")
-        selectUsefulLinks(m, uName)
+        selectUsefulLinks(i, uName)
     elif link == 5:
         if (i == 0):
             mainPage()
@@ -66,10 +63,11 @@ def selectUsefulLinks(i, uName):
 
 
 def selectInCollegeImportant(i, uName):
-    link = int(input(
-        "Please select a link from the following:\n 1 - Copyright Notice\n 2 - About\n 3 - Accessibility\n 4 - User Agreement\n 5 - Privacy Policy\n "
-        "6 - Cookie Policy\n 7 - Brand Policy\n 8 - Languages\n 9 - Return to previous screen\n"))
-    m = i
+
+    link = int(input("Please select a link from the following:\n 1 - Copyright Notice\n 2 - About\n 3 - Accessibility\n 4 - User Agreement\n 5 - Privacy Policy\n "
+                     "6 - Cookie Policy\n 7 - Brand Policy\n 8 - Languages\n 9 - Return to previous screen\n"))
+
+
     # Copyright Notice
     if link == 1:
         print("Copyright Notice: Developers of InCollege App")
@@ -80,7 +78,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # About
     elif link == 2:
@@ -91,7 +89,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # Accessibility
     elif link == 3:
@@ -99,7 +97,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # User Agreement
     elif link == 4:
@@ -111,7 +109,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # Privacy Policy
     elif link == 5:
@@ -130,7 +128,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # Cookie Policy
     elif link == 6:
@@ -143,7 +141,7 @@ def selectInCollegeImportant(i, uName):
             "How We Make Use of Cookies. We use cookies to enhance your experience on our site and to better understand how users interact with it.")
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # Brand Policy
     elif link == 7:
@@ -157,7 +155,7 @@ def selectInCollegeImportant(i, uName):
         # Return to options
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectInCollegeImportant(m, uName)
+            selectInCollegeImportant(i, uName)
 
     # Languages
     elif link == 8:
@@ -174,7 +172,7 @@ def selectInCollegeImportant(i, uName):
             # Return to options
             select = int(input("0 - Return to previous screen: "))
             if select == 0:
-                selectInCollegeImportant(m, uName)
+                selectInCollegeImportant(i, uName)
 
     # Return to previous screen
     elif link == 9:
@@ -187,7 +185,7 @@ def selectInCollegeImportant(i, uName):
     # Invalid option
     else:
         print("Invalid option... Showing options again...")
-        selectInCollegeImportant(m, uName)
+        selectInCollegeImportant(i, uName)
 
 
 def guestControls(uName):
@@ -210,10 +208,9 @@ def guestControls(uName):
         return
 
 
-def selectGeneral(i, Uname):
-    selection = int(input(
-        "Please select from the following options:\n1 - SignUp\n""2 - Help Center\n3 - About\n""4 - Press \n5 - Blog\n""6 - Careers\n7 - Developers\n""8 - Return to previous screen\n"))
-    m = i
+def selectGeneral(i,Uname):
+    selection = int(input("Please select from the following options:\n1 - SignUp\n""2 - Help Center\n3 - About\n""4 - Press \n5 - Blog\n""6 - Careers\n7 - Developers\n""8 - Return to previous screen\n"))
+
 
     userName = Uname
     if selection == 1:
@@ -221,45 +218,45 @@ def selectGeneral(i, Uname):
             userName = signUp()
             select = int(input("0 - Return to previous screen: "))
             if select == 0:
-                selectGeneral(m, userName)
+                selectGeneral(i, userName)
         else:
             print("Already Signed In")
             select = int(input("0 - Return to previous screen: "))
             if select == 0:
-                selectGeneral(m, userName)
+                selectGeneral(i, userName)
     elif selection == 2:
         print("We're here to help")
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 3:
         print("In College: Welcome to In College, the world's largest college student network with many users in many"
               " countries and territories worldwide.")
         select = int(input("0 - Return to previous screen: "))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 4:
         print("In College Pressroom: Stay on top of the latest news, updates, and reports")
         select = int(input("0 - Return to previous screen\n"))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 5:
         print("Under construction")
         select = int(input("0 - Return to previous screen\n"))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 6:
         print("Under construction")
         select = int(input("0 - Return to previous screen\n"))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 7:
         print("Under construction")
         select = int(input("0 - Return to previous screen\n"))
         if select == 0:
-            selectGeneral(m, userName)
+            selectGeneral(i, userName)
     elif selection == 8:
-        selectUsefulLinks(m, userName)
+        selectUsefulLinks(i, userName)
     else:
         print("Not a valid option")
         exit(-1)
@@ -405,10 +402,9 @@ def selectSkill(uName):
 
 
 def selectOption(uName):
-    print("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you "
-          "know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links\n0 - To Log"
-          " Out")
-    option = int(input())
+
+    option = int(input("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links \n6 - Check pending friends request\n7 - Search and add Friends\n8 - Show my network \n0 - To Log Out\n"))
+
 
     if option == 1:
         findJob(uName)
@@ -425,10 +421,160 @@ def selectOption(uName):
         selectUsefulLinks(1, uName)
     elif option == 5:  # InCollege Important Links
         selectInCollegeImportant(1, uName)
-
+    elif option == 6:
+        # Get the list of friend requests for the user
+        checkFriendRequests(uName)
+    elif option == 7:
+        searchAndRequest(uName)
+    elif option == 8:
+        showMyNetwork(uName)
     elif option == 0:
         print("User logged out")
         exit(1)
     else:
         print("Not a valid option")
         exit(-1)
+
+
+# This function checks if logged-in user has any friend requests and prompts them to accept or reject the friend request
+def checkFriendRequests(uName):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            if len(user["friendRequests"]) != 0:
+                print("You have pending friend requests:")
+                for friendRequests in user["friendRequests"]:
+                    print(friendRequests)
+                friendName = input("Input Friend username you want to accept or reject: ")
+                while True:
+                    response = input("Do you want to accept or reject the friend request? (A/R): ").upper()
+                    if response == "A":
+                        addFriend(uName, friendName)
+                        addFriend(friendName, uName)
+                        removeRequest(uName, friendName)
+                        print(f"{friendName} added as a friend.")
+                        break
+                    elif response == "R":
+                        removeRequest(uName, friendName)
+                        break
+                    else:
+                        print("Invalid response.")
+                        continue
+
+            else:
+                print("You have no pending friend requests.")
+                break
+
+    selection = int(input("Input 0 to return to previous screen or 1 to check more friend request: "))
+    if selection == 0:
+        selectOption(uName)
+    else:
+        checkFriendRequests(uName)
+
+
+# This function lets logged-in user to search people requests and send them requests
+def searchAndRequest(uName):
+    friendUser = searchUsers()
+    if len(friendUser) != 0:
+        friendUserName = friendUser[0]["username"]
+        response = input("Do you want to add them as friends: Y/N ").upper()
+        if response == "Y":
+            users = readUsers()
+            for user in users:
+                if user["username"] == friendUserName:
+                    user["friendRequests"].append(uName)
+            with open("users.json", "w") as f:
+                json.dump(users, f)
+    else:
+        print("No users found.")
+
+    selection = int(input("Input 0 to return to previous screen or 1 to search again: "))
+    if selection == 0:
+        selectOption(uName)
+    else:
+        searchAndRequest(uName)
+
+
+# This function lets logged-in user to see their network and option to remove friends
+def showMyNetwork(uName):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            if len(user["friends"]) != 0:
+                print("You have the following friends in network:")
+                for friend in user["friends"]:
+                    print(friend)
+                while True:
+                    response = input("Do you want to remove friends (Y/N): ").upper()
+                    if response == "Y":
+                        response1 = input("Input Friend name you want to remove: ")
+                        removeFriend(uName, response1)
+                        removeFriend(response1, uName)
+                        print(f"{response1} removed as a friend.")
+                        break
+                    elif response == "N":
+                        print("None of the friends have been removed")
+                        break
+                    else:
+                        print("Invalid response.")
+                        continue
+            else:
+                print("None")
+                break
+
+    selection = int(input("Input 0 to return to previous screen or 1 to Show your network: "))
+    if selection == 0:
+        selectOption(uName)
+    else:
+        showMyNetwork(uName)
+
+
+# helper function for removing friends
+def removeFriend(uName, Friendsusers):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            user["friends"].remove(Friendsusers)
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+
+
+# helper function for searching users
+def searchUsers():
+    lastName = input("Please enter the last name or skip: ")
+    university = input("Please enter the University name or skip: ")
+    major = input("Please enter the major name or skip: ")
+
+    users = readUsers()
+    filteredUsers = []
+    for user in users:
+        if lastName is not None and user["lastName"] != lastName:
+            continue
+        if university is not None and user["college"] != university:
+            continue
+        if major is not None and user["major"] != major:
+            continue
+        else:
+            filteredUsers.append(user)
+
+    return filteredUsers
+
+
+# helper function for adding friend once user accepts the request
+def addFriend(uName, friendUsername):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            user["friends"].append(friendUsername)
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+
+
+# helper function for removing friend request once user accepts or rejects them
+def removeRequest(uName, friendUsername):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            user["friendRequests"].remove(friendUsername)
+    with open("users.json", "w") as f:
+        json.dump(users, f)
