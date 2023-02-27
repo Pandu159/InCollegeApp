@@ -1,3 +1,1 @@
-[
-    {"username": "user1", "password": "Test123@", "firstName": "a", "lastName": "b", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendsRequest": []}
-]
+[{"username": "u1", "password": "User123@", "firstName": "A", "lastName": "M", "college": "ABC", "major": "CS", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["u3"], "friendRequests": []}, {"username": "u2", "password": "User123@", "firstName": "A", "lastName": "Max", "college": "A", "major": "CS", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendRequests": []}, {"username": "u3", "password": "User123@", "firstName": "A", "lastName": "Min", "college": "B", "major": "CS", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["u1"], "friendRequests": []}]
