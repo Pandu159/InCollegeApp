@@ -403,8 +403,9 @@ def selectSkill(uName):
 
 def selectOption(uName):
 
-    option = int(input("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links \n6 - Check pending friends request\n7 - Search and add Friends\n8 - Show my network \n0 - To Log Out\n"))
+    requestDisplay(uName)
 
+    option = int(input("Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links \n6 - Check pending friends request\n7 - Search and add Friends\n8 - Show my network \n0 - To Log Out\n"))
 
     if option == 1:
         findJob(uName)
@@ -434,6 +435,16 @@ def selectOption(uName):
     else:
         print("Not a valid option")
         exit(-1)
+
+# Displays pending request when user logs in
+def requestDisplay(uName):
+    users = readUsers()
+    for user in users:
+        if user["username"] == uName:
+            if len(user["friendRequests"]) != 0:
+                print("You have pending friend requests")
+                return True
+    return False
 
 
 # This function checks if logged-in user has any friend requests and prompts them to accept or reject the friend request
@@ -477,6 +488,7 @@ def searchAndRequest(uName):
     friendUser = searchUsers()
     if len(friendUser) != 0:
         friendUserName = friendUser[0]["username"]
+        print("User Found")
         response = input("Do you want to add them as friends: Y/N ").upper()
         if response == "Y":
             users = readUsers()
@@ -548,14 +560,17 @@ def searchUsers():
     users = readUsers()
     filteredUsers = []
     for user in users:
-        if lastName is not None and user["lastName"] != lastName:
-            continue
-        if university is not None and user["college"] != university:
-            continue
-        if major is not None and user["major"] != major:
-            continue
-        else:
+        if lastName is not None and user["lastName"] == lastName:
             filteredUsers.append(user)
+            break
+        elif university is not None and user["college"] == university:
+            filteredUsers.append(user)
+            break
+        elif major is not None and user["major"] == major:
+            filteredUsers.append(user)
+            break
+        else:
+            continue
 
     return filteredUsers
 
