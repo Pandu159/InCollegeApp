@@ -482,7 +482,6 @@ def showMyNetwork(uName):
     users = readUsers()
     for user in users:
         if user["username"] == uName:
-            print(user)
             if len(user["friends"]) != 0:
                 print("You have the following friends in network:")
                 for friend in user["friends"]:
