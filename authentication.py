@@ -1,4 +1,4 @@
-#authentication 
+# authentication
 import json
 
 
@@ -9,18 +9,20 @@ def readUsers():
     except FileNotFoundError:
         return []
 
-def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds, friends, friendsRequest):
+
+def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
+              friends, friendRequests):
     data = readUsers()
 
-    data.append({"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
-                 "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-                 "friends": friends, "friendRequests": friendsRequest})
+    data.append(
+        {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
+         "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
+         "friends": friends, "friendRequests": friendRequests})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
 
 def updateUserInfo(username, updateParam, updateInfo):
-
     users = readUsers()
 
     for user in users:
@@ -67,14 +69,14 @@ def signUp():
     friends = []
     friendsRequest = []
 
-    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds, friends, friendsRequest)
+    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
+              friends, friendsRequest)
 
     print("Successfully signed up!")
     return username
 
 
 def signIn():
-
     while True:
         username = input("Please input a username: ")
         password = input("Please input a password: ")

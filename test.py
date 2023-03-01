@@ -427,3 +427,28 @@ def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
     except TypeError:
         out, err = capsys.readouterr()
         assert test_message1 in out
+
+
+def test_requestDisplay():
+    pass
+def test_checkFriendRequests():
+    pass
+
+def test_searchAndRequest():
+    pass
+
+def test_showMyNetwork():
+    pass
+
+def test_removeFriend():
+    pass
+
+def test_searchUsers():
+    pass
+
+def test_addFriend():
+    pass
+
+def test_removeRequest():
+    pass
+
