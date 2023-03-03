@@ -16,27 +16,18 @@ def readProfiles():
     except FileNotFoundError:
         return []
 
-
 def writeProfile(username, title, major, university, about, experience, education):
     data = readProfiles()
     major = formatInput(major)
     university = formatInput(university)
-    data = [p for p in data if p["username"] != username]
+    data = [i for i in data if i["username"] != username]
     data.append({"username": username, "title": title, "major": major, "university": university,
                  "about": about, "experience": experience, "education": education})
     with open("profiles.json", "w") as f:
         json.dump(data, f)
 
-
-def formatInput(inputStr):
-    words = inputStr.split()
-    formatted = [word.capitalize() for word in words]
-    return " ".join(formatted)
-
-
 def updateProfile(username, updateParam, updateInfo):
     profiles = readProfiles()
-
 
     for i, profile in enumerate(profiles):
         if username == profile["username"]:
@@ -44,16 +35,15 @@ def updateProfile(username, updateParam, updateInfo):
             with open("profiles.json", "w") as f:
                 json.dump(profiles, f)
 
-
 def createProfile(username):
     existingProfile = readProfiles()
-    existingProfile = [p for p in existingProfile if p['username'] == username]
+    existingProfile = [i for i in existingProfile if i['username'] == username]
     existingProfile = existingProfile[0] if existingProfile else None
     if existingProfile:
         modifyProfile(username, existingProfile)
         return
 
-
+    print("Starting to create profile\n")
     title = input("Please enter a title for your profile: ")
     major = input("Please enter your major: ")
     university = input("Please enter the name of your university: ")
@@ -90,13 +80,13 @@ def createProfile(username):
 
 
 def modifyProfile(username, existingProfile):
+    print("Starting to modify profile\n")
     title = input("Please enter a title for your profile (or press enter to keep current value): ")
     major = input("Please enter your major (or press enter to keep current value): ")
     university = input("Please enter the name of your university (or press enter to keep current value): ")
     about = input("Please enter a paragraph about yourself (or press enter to keep current value): ")
     experience = []
     education = []
-
 
     count = 0
     while count < 3:
@@ -123,24 +113,20 @@ def modifyProfile(username, existingProfile):
         else:
             break
 
-
     if title:
         updateProfile(username, "title", title)
     else:
         title = existingProfile["title"]
-
 
     if major:
         updateProfile(username, "major", major)
     else:
         major = existingProfile["major"]
 
-
     if university:
         updateProfile(username, "university", university)
     else:
         university = existingProfile["university"]
-
 
     if about:
         updateProfile(username, "about", about)
@@ -152,12 +138,15 @@ def modifyProfile(username, existingProfile):
     else:
         experience = existingProfile["experience"]
 
-
     if education:
         updateProfile(username, "education", education)
     else:
         education = existingProfile["education"]
 
-
     writeProfile(username, title, major, university, about, experience, education)
     print("Profile updated successfully!")
+
+def formatInput(string):
+    words = string.split()
+    formatted = [word.capitalize() for word in words]
+    return " ".join(formatted)
