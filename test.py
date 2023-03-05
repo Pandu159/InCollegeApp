@@ -449,3 +449,4 @@ def test_checkFriendRequests(capsys, monkeypatch, test_message):
         out, err = capsys.readouterr()
         assert test_message in out
 
+
