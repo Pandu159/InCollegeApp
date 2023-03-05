@@ -11,6 +11,6 @@ def main():
 
 
 if __name__ == '__main__':
-    searchAndRequest("u1")
+    main()
 
 
