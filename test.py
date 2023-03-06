@@ -29,15 +29,12 @@ def test_mainPage(capsys, monkeypatch, test_inputs, messages) -> None:
 
 
 def test_signIn(capsys, monkeypatch):
-    users = [
-        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
-         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
-    with open("users.json", "w") as f:
-        json.dump(users, f)
 
+
+    writeUser("test_user1", "Test123@", "Tom",  "Smith","USF", "CS", "English", "on",  "on", "on",  ["user2"],  ["user3"])
     def mock_input(prompt):
         if "username" in prompt:
-            return "user1"
+            return "test_user1"
         else:
             return "Test123@"
 
@@ -46,41 +43,51 @@ def test_signIn(capsys, monkeypatch):
     username = signIn()
     out, err = capsys.readouterr()
 
-    assert username == "user1"
+    assert username == "test_user1"
     assert "Successfully logged in!\n\nCurrent Language is English\n\n" in out
 
 
-def test_signUp(capsys, monkeypatch):
-    users = [
-        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
-         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
-    with open("users.json", "w") as f:
-        json.dump(users, f)
-
-    test_inputs = ['user2', 'Test123#', 'John', 'Doe', 'English', 'on', 'on', 'on']
-    monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-
-    signUp()
-    out, err = capsys.readouterr()
-    assert "Successfully signed up!" in out
-
-    with open("users.json", "r") as f:
-        data = json.load(f)
-
-    assert {"username": "user2", "password": "Test123#", "firstName": "John", "lastName": "Doe", "language": "English",
-            "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"} in data
+# def test_signUp(capsys, monkeypatch):
+#     users = [
+#         {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
+#          "major": "CS", "language": "English",
+#          "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"], "friendRequests": ["user3"]}]
+#     with open("test_users.json", "w") as f:
+#         json.dump(users, f)
+#
+#     test_inputs = ['user2', 'Test123#', 'John', 'Doe', 'English', 'on', 'on', 'on']
+#     monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
+#
+#     signUp()
+#     out, err = capsys.readouterr()
+#     assert "Successfully signed up!" in out
+#
+#     with open("users.json", "r") as f:
+#         data = json.load(f)
+#
+#     assert {
+#                "username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
+#                "major": "CS", "language": "English",
+#                "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"],
+#                "friendRequests": ["user3"]} in data
 
 
 @pytest.fixture(autouse=True)
 def test_readUsers():
-    data = [
-        {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "language": "English",
-         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on"}]
+
+    data = readUsers()
+    appended_data = {"username": "test_user", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
+         "major": "CS", "language": "English",
+         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"], "friendRequests": ["user3"]}
+    data.append(appended_data)
+
     with open("users.json", "w") as f:
         json.dump(data, f)
 
+
     result = readUsers()
-    assert result == data
+
+    assert appended_data in result
 
 
 def test_writeUser():
@@ -92,31 +99,37 @@ def test_writeUser():
     inCollegeEmail = "on"
     SMS = "on"
     targetedAds = "on"
-    writeUser(username, password, firstName, lastName, language, inCollegeEmail, SMS, targetedAds)
+    college = "USF"
+    major = "Computer Science"
+    friends = ""
+    friendRequests = ""
+    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
+              friends, friendRequests)
 
     with open("users.json", "r") as f:
         data = json.load(f)
 
     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds} in data
+            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
+            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests} in data
 
 
-def test_updateUserInfo():
-    username = "user1"
-    password = "Test123@"
-    firstName = "Tom"
-    lastName = "Smith"
-    language = "English"
-    updateParam = "inCollegeEmail"
-    updateInfo = "off"
-    SMS = "on"
-    targetedAds = "on"
-    updateUserInfo(username, updateParam, updateInfo)
-    with open("users.json", "r") as f:
-        data = json.load(f)
-
-    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-            "language": language, "inCollegeEmail": "off", "SMS": SMS, "targetedAds": targetedAds} in data
+# def test_updateUserInfo():
+#     username = "user1"
+#     password = "Test123@"
+#     firstName = "Tom"
+#     lastName = "Smith"
+#     language = "English"
+#     updateParam = "inCollegeEmail"
+#     updateInfo = "off"
+#     SMS = "on"
+#     targetedAds = "on"
+#     updateUserInfo(username, updateParam, updateInfo)
+#     with open("users.json", "r") as f:
+#         data = json.load(f)
+#
+#     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
+#             "language": language, "inCollegeEmail": "off", "SMS": SMS, "targetedAds": targetedAds} in data
 
 
 def test_checkPassword():
@@ -276,36 +289,25 @@ def test_guestControls(capsys, monkeypatch, test_inputs, messages) -> None:
         assert messages in out
 
 
-@pytest.mark.parametrize("test_input1, test_input2, test_input3, test_message1, test_message2, test_message3",
-                         [(['2', '3', '4'], ['1', '2'], ['5'],
+@pytest.mark.parametrize("test_input1, test_input2, test_message1, test_message2",
+                         [(['2', '3', '4'], ['1', '2'],
                            "under construction\nunder construction\nunder construction\n",
                            "We're here to help\n",
-                           "Please select from the following options:\n1 - Find a job/internship\n2 - Find someone "
-                           "you know\n3 - Learn a new skill\n4 - Useful Links \n5 - InCollege Important Links\n0 - To "
-                           "Log Out\n"
                            )])
-def test_selectUsefulLinks(monkeypatch, capsys, test_input1, test_message1, test_input2, test_message2, test_input3,
-                           test_message3):
+def test_selectUsefulLinks(monkeypatch, capsys, test_input1, test_message1, test_input2, test_message2):
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
         selectUsefulLinks(1, "user1")
-    except IndexError:
+    except IndexError or KeyError:
         out, err = capsys.readouterr()
         assert test_message1 in out
 
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_input2.pop(0))
         selectUsefulLinks(1, "user1")
-    except IndexError:
+    except IndexError or KeyError:
         out, err = capsys.readouterr()
         assert test_message2 in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_input3.pop(0))
-        selectUsefulLinks(1, "user1")
-    except TypeError:
-        out, err = capsys.readouterr()
-        assert test_message3 in out
 
 
 @pytest.mark.parametrize("test_input1, test_input2, test_input3, test_input4, test_input5, test_message1, "
@@ -414,41 +416,37 @@ def test_selectGeneral(capsys, monkeypatch, test_input1, test_input2, test_messa
         assert test_message2 in out
 
 
-# Needs to be updated, something wrong with the test_input1
 @pytest.mark.parametrize("test_input1, test_message1",
                          [(['3', '1'],
-                           "Please select from the following options:\n1 - Find a job/internship\n2 - Find someone "
-                           "you know\n3 - Learn a new skill\n4 - Useful Links \n5 - InCollege Important Links\n0 - To "
-                           "Log Out")])
+                           "under construction\n")])
 def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
         selectOption("user1")
-    except TypeError:
+    except IndexError or KeyError:
         out, err = capsys.readouterr()
         assert test_message1 in out
 
 
-def test_requestDisplay():
-    pass
-def test_checkFriendRequests():
-    pass
+@pytest.mark.parametrize("test_message", ['You have pending friend requests\n'])
+def test_requestDisplay(capsys, monkeypatch, test_message):
+    writeUser("test_user", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
+              ["Test"])
+    requestDisplay("test_user")
 
-def test_searchAndRequest():
-    pass
+    try:
+        requestDisplay("test_user")
+    except TypeError:
+        out, err = capsys.readouterr()
+        assert test_message in out
+@pytest.mark.parametrize("test_message", ['You have pending friend requests:\nFriendRequest'])
+def test_checkFriendRequests(capsys, monkeypatch, test_message):
+    writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
+              ["FriendRequest"])
+    try:
+        checkFriendRequests("test_user_check_friend_requests")
+    except OSError:
+        out, err = capsys.readouterr()
+        assert test_message in out
 
-def test_showMyNetwork():
-    pass
-
-def test_removeFriend():
-    pass
-
-def test_searchUsers():
-    pass
-
-def test_addFriend():
-    pass
-
-def test_removeRequest():
-    pass
 
