@@ -31,7 +31,7 @@ def test_mainPage(capsys, monkeypatch, test_inputs, messages) -> None:
 def test_signIn(capsys, monkeypatch):
 
 
-    writeUser("test_user1", "Test123@", "Tom",  "Smith","USF", "CS", "English", "on",  "on", "on",  ["user2"],  ["user3"])
+    writeUser("test_user1", "Test123@", "Tom",  "Smith","USF", "CS", "English", "on",  "on", "on",  ["user2"],  ["user3"], "")
     def mock_input(prompt):
         if "username" in prompt:
             return "test_user1"
@@ -103,15 +103,16 @@ def test_writeUser():
     major = "Computer Science"
     friends = ""
     friendRequests = ""
+    profile = ""
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests)
+              friends, friendRequests, profile)
 
     with open("users.json", "r") as f:
         data = json.load(f)
 
     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
             "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests} in data
+            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests, "profile": profile} in data
 
 
 # def test_updateUserInfo():
@@ -431,7 +432,7 @@ def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
 @pytest.mark.parametrize("test_message", ['You have pending friend requests\n'])
 def test_requestDisplay(capsys, monkeypatch, test_message):
     writeUser("test_user", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
-              ["Test"])
+              ["Test"], "")
     requestDisplay("test_user")
 
     try:
@@ -442,7 +443,7 @@ def test_requestDisplay(capsys, monkeypatch, test_message):
 @pytest.mark.parametrize("test_message", ['You have pending friend requests:\nFriendRequest'])
 def test_checkFriendRequests(capsys, monkeypatch, test_message):
     writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
-              ["FriendRequest"])
+              ["FriendRequest"], "")
     try:
         checkFriendRequests("test_user_check_friend_requests")
     except OSError:
