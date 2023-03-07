@@ -1,6 +1,6 @@
 from authentication import *
 from feed import *
-
+from helper import *
 
 # Displays pending request when user logs in
 def requestDisplay(uName):
@@ -44,7 +44,7 @@ def checkFriendRequests(uName):
 
     selection = int(input("Input 0 to return to previous screen or 1 to check more friend request: "))
     if selection == 0:
-        selectOption(uName)
+        returnToOption(selection, uName)
     else:
         checkFriendRequests(uName)
 
@@ -68,7 +68,7 @@ def searchAndRequest(uName):
 
     selection = int(input("Input 0 to return to previous screen or 1 to search again: "))
     if selection == 0:
-        selectOption(uName)
+        returnToOption(selection, uName)
     else:
         searchAndRequest(uName)
 
@@ -102,7 +102,7 @@ def showMyNetwork(uName):
 
     selection = int(input("Input 0 to return to previous screen or 1 to Show your network: "))
     if selection == 0:
-        selectOption(uName)
+        returnToOption(selection, uName)
     else:
         showMyNetwork(uName)
 

@@ -2,8 +2,8 @@ from network_utils import *
 from helper import *
 from job_utils import *
 from authentication import *
-from feed import *
 import json
+
 
 def readProfiles():
     try:
@@ -16,6 +16,7 @@ def readProfiles():
     except FileNotFoundError:
         return []
 
+
 def writeProfile(username, title, major, university, about, experience, education):
     data = readProfiles()
     major = formatInput(major)
@@ -26,6 +27,7 @@ def writeProfile(username, title, major, university, about, experience, educatio
     with open("profiles.json", "w") as f:
         json.dump(data, f)
 
+
 def updateProfile(username, updateParam, updateInfo):
     profiles = readProfiles()
 
@@ -34,6 +36,7 @@ def updateProfile(username, updateParam, updateInfo):
             profiles[i][updateParam] = updateInfo
             with open("profiles.json", "w") as f:
                 json.dump(profiles, f)
+
 
 def createProfile(username):
     existingProfile = readProfiles()
@@ -54,7 +57,7 @@ def createProfile(username):
     while count < 3:
         addExperience = input("Do you want to add experience (yes/no)?: ")
         if addExperience.lower() == "yes":
-            count =+1
+            count = +1
             exp = {}
             exp["title"] = input("Please enter the title of the job: ")
             exp["employer"] = input("Please enter the employer: ")
@@ -80,11 +83,7 @@ def createProfile(username):
     print("Profile created successfully!")
     printProfile(username)
     selection = int(input("Input 0 to return to previous screen.\n"))
-    if selection == 0:
-        selectOption(username)
-    else:
-         print("Not a valid option")
-         exit(-1)
+    returnToOption(selection, username)
 
 
 def modifyProfile(username, existingProfile):
@@ -140,7 +139,7 @@ def modifyProfile(username, existingProfile):
         updateProfile(username, "about", about)
     else:
         about = existingProfile["about"]
-   
+
     if experience:
         updateProfile(username, "experience", experience)
     else:
@@ -155,38 +154,32 @@ def modifyProfile(username, existingProfile):
     print("Profile updated successfully!")
     printProfile(username)
     selection = int(input("Input 0 to return to previous screen.\n"))
-    if selection == 0:
-        selectOption(username)
-    else:
-         print("Not a valid option")
-         exit(-1)
+    returnToOption(selection, username)
+
 
 def formatInput(string):
     words = string.split()
     formatted = [word.capitalize() for word in words]
     return " ".join(formatted)
 
+
 def viewMyProfile(username):
     users = readUsers()
     for user in users:
-        if user["username"] == username: 
+        if user["username"] == username:
             if user["profile"] is None:
                 print("You have not created your profile yet.")
                 selection = int(input("Input 0 to return to previous screen or 1 to Create your profile: "))
                 if selection == 0:
-                    selectOption(username)
+                    returnToOption(selection, username)
                 else:
                     createProfile(username)
             else:
                 printProfile(username)
-    
+
             selection1 = int(input("Input 0 to return to previous screen.\n"))
-            if selection1 == 0:
-                selectOption(username)
-            else:
-                print("Not a valid option")
-                exit(-1)
-    
+            returnToOption(selection1, username)
+
 
 def printProfile(username):
     users = readUsers()
@@ -196,13 +189,13 @@ def printProfile(username):
             print("\n" + name)
 
     profiles = readProfiles()
-    for profile in profiles: 
+    for profile in profiles:
         if profile["username"] == username:
             print("Title: " + profile["title"])
             print("Major: " + profile["major"])
             print("University: " + profile["university"])
             print("About: " + profile["about"])
-            
+
             if len(profile["experience"]) != 0:
                 print("Experience: \n")
                 for experience in profile["experience"]:
@@ -212,7 +205,7 @@ def printProfile(username):
                     print("Date ended: " + experience["date ended"])
                     print("Location: " + experience["location"])
                     print("Description: " + experience["description"] + "\n")
-            
+
             if len(profile["education"]) == 0:
                 print("Education: no education added yet to profile.")
             else:
@@ -222,18 +215,19 @@ def printProfile(username):
                     print("Degree: " + education["degree"])
                     print("Years attended: " + education["years attended"])
 
+
 def friendsProfile(username):
     users = readUsers()
-    
+
     for user in users:
         if user["username"] == username:
             if len(user["friends"]) != 0:
-                friendsList = []                
+                friendsList = []
                 print("List of friends: ")
-                
+
                 for friend in user["friends"]:
                     users1 = readUsers()
-                    
+
                     listLine = {}
                     for userFriends in users1:
                         if userFriends["username"] == friend:
@@ -242,17 +236,19 @@ def friendsProfile(username):
                             listLine["lastName"] = userFriends["lastName"]
                             listLine["profile"] = userFriends["profile"]
                             friendsList.append(listLine)
-                            break           
-                                        
-                profile = False                        
+                            break
+
+                profile = False
                 for friends in friendsList:
                     if friends["profile"] is None:
-                        displayedName = "Username: " + friends["username"] + " - Name: " + friends["firstName"] + " " + friends["lastName"]                       
+                        displayedName = "Username: " + friends["username"] + " - Name: " + friends["firstName"] + " " + \
+                                        friends["lastName"]
                     else:
-                        displayedName = "Username: " + friends["username"] + " - Name: " + friends["firstName"] + " " + friends["lastName"] + " (Profile)"
+                        displayedName = "Username: " + friends["username"] + " - Name: " + friends["firstName"] + " " + \
+                                        friends["lastName"] + " (Profile)"
                         profile = True
-                    print(displayedName)   
- 
+                    print(displayedName)
+
                 if profile == False:
                     print("None of your friends have created a profile yet")
                     break
@@ -265,20 +261,15 @@ def friendsProfile(username):
                             if friends["profile"] is not None:
                                 printProfile(userName)
                                 break
-                            else: 
+                            else:
                                 print("No profile available")
                                 break
-                    if invalidUser == True: 
+                    if invalidUser == True:
                         print("Invalid username.")
-                        
+
             else:
                 print("You do not have any friend yet.")
-   
 
     selection = int(input("Input 0 to return to previous screen.\n"))
-    if selection == 0:
-        selectOption(username)
-    else:
-        print("Not a valid option")
-        exit(-1)
-                
+    returnToOption(selection, username)
+
