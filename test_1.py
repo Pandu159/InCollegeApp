@@ -1,5 +1,10 @@
 import pytest
 from feed import *
+from profile import *
+from network_utils import *
+# necessary imports for epic 5
+import builtins
+from unittest.mock import patch
 
 
 def test_homeScreen(capsys):
@@ -29,9 +34,9 @@ def test_mainPage(capsys, monkeypatch, test_inputs, messages) -> None:
 
 
 def test_signIn(capsys, monkeypatch):
+    writeUser("test_user1", "Test123@", "Tom", "Smith", "USF", "CS", "English", "on", "on", "on", ["user2"], ["user3"],
+              "")
 
-
-    writeUser("test_user1", "Test123@", "Tom",  "Smith","USF", "CS", "English", "on",  "on", "on",  ["user2"],  ["user3"])
     def mock_input(prompt):
         if "username" in prompt:
             return "test_user1"
@@ -74,16 +79,16 @@ def test_signIn(capsys, monkeypatch):
 
 @pytest.fixture(autouse=True)
 def test_readUsers():
-
     data = readUsers()
-    appended_data = {"username": "test_user", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
-         "major": "CS", "language": "English",
-         "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"], "friendRequests": ["user3"]}
+    appended_data = {"username": "test_user", "password": "Test123@", "firstName": "Tom", "lastName": "Smith",
+                     "college": "USF",
+                     "major": "CS", "language": "English",
+                     "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"],
+                     "friendRequests": ["user3"]}
     data.append(appended_data)
 
     with open("users.json", "w") as f:
         json.dump(data, f)
-
 
     result = readUsers()
 
@@ -103,15 +108,17 @@ def test_writeUser():
     major = "Computer Science"
     friends = ""
     friendRequests = ""
+    profile = ""
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests)
+              friends, friendRequests, profile)
 
     with open("users.json", "r") as f:
         data = json.load(f)
 
     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
             "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests} in data
+            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests,
+            "profile": profile} in data
 
 
 # def test_updateUserInfo():
@@ -431,7 +438,7 @@ def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
 @pytest.mark.parametrize("test_message", ['You have pending friend requests\n'])
 def test_requestDisplay(capsys, monkeypatch, test_message):
     writeUser("test_user", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
-              ["Test"])
+              ["Test"], "")
     requestDisplay("test_user")
 
     try:
@@ -439,14 +446,145 @@ def test_requestDisplay(capsys, monkeypatch, test_message):
     except TypeError:
         out, err = capsys.readouterr()
         assert test_message in out
+
+
 @pytest.mark.parametrize("test_message", ['You have pending friend requests:\nFriendRequest'])
 def test_checkFriendRequests(capsys, monkeypatch, test_message):
-    writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
-              ["FriendRequest"])
+    writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come",
+              "off", "off", ["Test"],
+              ["FriendRequest"], "")
     try:
         checkFriendRequests("test_user_check_friend_requests")
     except OSError:
         out, err = capsys.readouterr()
         assert test_message in out
+
+
+# Test cases for Epic 5
+def test_writeProfile():
+    username = "u1"
+    title = "InCollegeProfile"
+    major = "Computer Science"
+    university = "University Of South Florida"
+    about = "this is the paragraph about myself"
+    experience = [
+        {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl",
+         "description": "attended classes"}]
+    education = [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]
+    writeProfile(username, title, major, university, about, experience, education)
+
+    with open("profiles_test.json", "r") as f:
+        data = json.load(f)
+
+    assert {"username": username, "title": title, "major": major, "university": university,
+            "about": about, "experience": experience, "education": education} in data
+
+
+@pytest.fixture(autouse=True)
+def test_readProfiles():
+    data = readProfiles()
+    appended_data = {"username": "u1", "title": "InCollegeProfile", "major": "Computer Science",
+                     "university": "University Of South Florida", "about": "this is the paragraph about myself",
+                     "experience": [
+                         {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
+                          "location": "tampa,fl",
+                          "description": "attended classes"}],
+                     "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}
+    data.append(appended_data)
+
+    with open("profiles_test.json", "w") as f:
+        json.dump(data, f)
+
+    result = readProfiles()
+
+    assert appended_data in result
+
+
+@pytest.mark.parametrize(" test_message",
+                         [("\nA M\nTitle: InCollegeProfile\nMajor: Computer "
+                           'Science"\n"University": "University Of South Florida"\n"About": "this is '
+                           'the paragraph about myself"\nExperience: \n\n"Title": "student"\n"Employer": '
+                           '"usf"\n"Date started": "01/01/2023"\n"date ended": ""\n"Location": "tampa,'
+                           'fl"\n"Description": "attended classes"\n\n"Education"\n\n"School Name": '
+                           '"usf"\n"Degree": "bachelors"\n"Years attended": "2023-2023"\n')])
+def test_printProfile(capsys, monkeypatch, test_message):
+    try:
+        printProfile("u1")
+    except OSError:
+        out, err = capsys.readouterr()
+        assert test_message in out
+
+
+def test_updateProfile():
+    # creates a temp test file with one profile
+    with open("profiles_test.json") as f:
+        profiles = [{"username": "u1", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}]
+        json.dump(profiles, f)
+
+    # calls updateProfile with a valid parameter
+    updateProfile("u1", "major", "Information Technology")
+
+    # reads the test file and verifies that the profile was updated
+    with open("profiles_test.json", "r") as f:
+        profiles = json.load(f)
+        assert profiles[0]["major"] == "Information Technology"
+
+    # calls updateProfile with an invalid parameter and verify that it raises a KeyError
+    with pytest.raises(KeyError):
+        updateProfile("u1", "invalid_param", "Information Technology")
+
+
+@patch('builtins.input', side_effect=["Test Title", "Test Major", "Test University", "Test About",
+                                      "yes", "Test Job", "Test Employer", "01/01/2022", "01/01/2023",
+                                      "Test Location", "Test Description", "no"])
+
+def test_createProfile(test_message):
+    # calls createProfile with a new username
+    createProfile("test_user")
+
+    # verifies that the profile was created correctly
+    with open("profiles.json") as f:
+        profiles = json.load(f)
+        profile = profiles[0]
+        assert profile["username"] == "test_user"
+        assert profile["title"] == "Test Title"
+        assert profile["major"] == "Test Major"
+        assert profile["university"] == "Test Universaity"
+        assert profile["about"] == "Test About"
+        assert len(profile["experience"]) == 1
+        assert profile["experience"][0]["title"] == "Test Job"
+        assert len(profile["education"]) == 0
+
+    # calls createProfile with an existing username and verifies that modifyProfile is called
+    with patch("create_profile.modifyProfile") as test_modifyProfile:
+        createProfile("test_user")
+        test_modifyProfile.assert_called_once_with("test_user", profile)
+
+    # calls createProfile with invalid inputs and verifies that it raises ValueError
+    with patch("builtins.input", side_effect=["", "", "", "", "yes", "", "", "", "", "", "", "no"]):
+        with pytest.raises(ValueError):
+            createProfile("test_user")
+
+def test_friendsProfile(capsys):
+    # creates 3 profiles for test_user, friend1, and friend2
+    profiles = [
+        {"username": "test_user", "title": "Title 1", "major": "Major 1", "univeristy": "University 1",
+        "about": "About 1", "experience": [], "education": []},
+        {"username": "friend1", "title": "Title 2", "major": "Major 2", "univeristy": "University 2",
+        "about": "About 2", "experience": [], "education": []},
+        {"username": "friend2", "title": "Title 3", "major": "Major 3", "univeristy": "University 3",
+        "about": "About 3", "experience": [], "education": []}
+    ]
+    addFriend("test_user", "friend1")
+    addFriend("test_user", "friend2")
+
+    # test case 1: valid input
+    assert friendsProfile("test_user", profiles) == {"friend1", "friend2"}
+
+    # test case 2: invalid username
+    assert friendsProfile("invalid_user", profiles) == set()
+
+    # test case 3: empty list of profiles
+    assert friendsProfile("test_user", []) == set()
 
 

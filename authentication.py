@@ -11,13 +11,13 @@ def readUsers():
 
 
 def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests):
+              friends, friendRequests, profile):
     data = readUsers()
 
     data.append(
         {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
          "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-         "friends": friends, "friendRequests": friendRequests})
+         "friends": friends, "friendRequests": friendRequests, "profile": profile})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -68,9 +68,10 @@ def signUp():
     targetedAds = "on"
     friends = []
     friendsRequest = []
+    profile = None
 
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendsRequest)
+              friends, friendsRequest, profile)
 
     print("Successfully signed up!")
     return username
