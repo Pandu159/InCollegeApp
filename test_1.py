@@ -1,6 +1,10 @@
 import pytest
 from feed import *
 from profile import *
+from network_utils import *
+# necessary imports for epic 5
+import builtins
+from unittest.mock import patch
 
 
 def test_homeScreen(capsys):
@@ -509,4 +513,78 @@ def test_printProfile(capsys, monkeypatch, test_message):
     except OSError:
         out, err = capsys.readouterr()
         assert test_message in out
+
+
+def test_updateProfile():
+    # creates a temp test file with one profile
+    with open("profiles_test.json") as f:
+        profiles = [{"username": "u1", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}]
+        json.dump(profiles, f)
+
+    # calls updateProfile with a valid parameter
+    updateProfile("u1", "major", "Information Technology")
+
+    # reads the test file and verifies that the profile was updated
+    with open("profiles_test.json", "r") as f:
+        profiles = json.load(f)
+        assert profiles[0]["major"] == "Information Technology"
+
+    # calls updateProfile with an invalid parameter and verify that it raises a KeyError
+    with pytest.raises(KeyError):
+        updateProfile("u1", "invalid_param", "Information Technology")
+
+
+@patch('builtins.input', side_effect=["Test Title", "Test Major", "Test University", "Test About",
+                                      "yes", "Test Job", "Test Employer", "01/01/2022", "01/01/2023",
+                                      "Test Location", "Test Description", "no"])
+
+def test_createProfile(test_message):
+    # calls createProfile with a new username
+    createProfile("test_user")
+
+    # verifies that the profile was created correctly
+    with open("profiles.json") as f:
+        profiles = json.load(f)
+        profile = profiles[0]
+        assert profile["username"] == "test_user"
+        assert profile["title"] == "Test Title"
+        assert profile["major"] == "Test Major"
+        assert profile["university"] == "Test Universaity"
+        assert profile["about"] == "Test About"
+        assert len(profile["experience"]) == 1
+        assert profile["experience"][0]["title"] == "Test Job"
+        assert len(profile["education"]) == 0
+
+    # calls createProfile with an existing username and verifies that modifyProfile is called
+    with patch("create_profile.modifyProfile") as test_modifyProfile:
+        createProfile("test_user")
+        test_modifyProfile.assert_called_once_with("test_user", profile)
+
+    # calls createProfile with invalid inputs and verifies that it raises ValueError
+    with patch("builtins.input", side_effect=["", "", "", "", "yes", "", "", "", "", "", "", "no"]):
+        with pytest.raises(ValueError):
+            createProfile("test_user")
+
+def test_friendsProfile(capsys):
+    # creates 3 profiles for test_user, friend1, and friend2
+    profiles = [
+        {"username": "test_user", "title": "Title 1", "major": "Major 1", "univeristy": "University 1",
+        "about": "About 1", "experience": [], "education": []},
+        {"username": "friend1", "title": "Title 2", "major": "Major 2", "univeristy": "University 2",
+        "about": "About 2", "experience": [], "education": []},
+        {"username": "friend2", "title": "Title 3", "major": "Major 3", "univeristy": "University 3",
+        "about": "About 3", "experience": [], "education": []}
+    ]
+    addFriend("test_user", "friend1")
+    addFriend("test_user", "friend2")
+
+    # test case 1: valid input
+    assert friendsProfile("test_user", profiles) == {"friend1", "friend2"}
+
+    # test case 2: invalid username
+    assert friendsProfile("invalid_user", profiles) == set()
+
+    # test case 3: empty list of profiles
+    assert friendsProfile("test_user", []) == set()
+
 
