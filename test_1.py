@@ -528,11 +528,33 @@ def test_updateProfile():
     updateProfile("u1", "major", "Computer Science")
 
 
-#def test_createProfile():
+@pytest.mark.parametrize("test_input, test_message",
+                         [(["InCollegeProfile", "Computer Science", "University of South Florida",
+                            "the paragraph about myself", "yes", "student", "usf", "01012022", " test", "tampa",
+                            "attended classes", "yes", "usf", "bachelors", "2023-2023"],
+                           "Starting to create profile\n\n")])
+def test_createProfile(test_input, test_message, monkeypatch, capsys):
+    try:
+        # calls createProfile with the test input
+        test_username = "user1"
+        monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0))
+        createProfile(test_username)
+    except IndexError or KeyError:
+        out, err = capsys.readouterr()
+        assert test_message in out
 
 
+#@pytest.mark.parametrize("test_input, test_message",
+#                         [(["friend1"], ["List of friends: \n"])])
+#def test_friendsProfile(monkeypatch, capsys, test_input, test_message):
+    # writes a test user
+#    writeUser("test_user", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
+#    writeUser("friend1", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
+#    writeUser("friend2", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
 
-#def test_friendsProfile():
-
-
-
+#    addFriend("test_user", "friend1")
+#    addFriend("test_user", "friend2")
+#    monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0))
+#    friendsProfile("test_user")
+#    out, err = capsys.readouterr()
+#    assert test_message in out
