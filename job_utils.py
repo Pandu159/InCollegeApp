@@ -3,6 +3,7 @@ from helper import *
 from authentication import *
 
 
+
 # this function creates a new job
 def createJob(uName):
     # gets the details for the new job from the user
@@ -18,8 +19,8 @@ def createJob(uName):
     users = readUsers()
     name = "default"
     applicants = []
-    username = uName
-    jobID = random.randint(1000, 9999)
+    username = uName    
+    jobID = random.randint(1000,9999)
 
     for user in users:
         if uName == user["username"]:
@@ -31,7 +32,6 @@ def createJob(uName):
         json.dump(jobs, f)
 
     print("Job created! Returning back to options...")
-
 
 # this function shows all the job titles in jobs.json
 def showJobs(uName):
@@ -45,8 +45,8 @@ def showJobs(uName):
     if numJobs == 0:
         print("There is no job to show.\n")
         return
-
-    # for loop iterates through all jobs
+        
+    #for loop iterates through all jobs
     i = 0
     for line in jobs:
         # finds the current job in the dictionary
@@ -58,17 +58,18 @@ def showJobs(uName):
             if uName == applicants:
                 applied = True
 
-        if applied == True:
+        if applied == True: 
             # prints the current job number
             print(f'{i + 1}' + " - " + f'Title: {jobDesc["title"]}' + "--- APPLICATION SUBMITTED\n")
-
+ 
         else:
             # prints the current job number
             print(f'{i + 1}' + " - " + f'Title: {jobDesc["title"]}' + "\n")
 
         # iterate counter i
         i += 1
-
+    
+    
     selection = int(input("Please select a job from the list: "))
     if selection <= 0:
         print("Invalid input")
@@ -78,7 +79,7 @@ def showJobs(uName):
         showJobs(uName)
     else:
         printJobs(selection, uName)
-
+ 
 
 # this function prints the details for a particular job
 def printJobs(i, uName):
@@ -86,8 +87,7 @@ def printJobs(i, uName):
     jobs = getJson("jobs")
 
     # prints the details of the job
-    jobDesc = jobs[i - 1]
-    jobID = jobDesc["jobID"]
+    jobDesc = jobs[i-1]
     jobIdentifier = jobDesc["jobID"]
 
     # prints the information about the job
@@ -97,6 +97,7 @@ def printJobs(i, uName):
     print(f'Location: {jobDesc["location"]}')
     print(f'Salary: {jobDesc["salary"]}')
     print("\n")
+
 
     # applies for job if user did not post the job or has applied to it
     applied = False
@@ -123,42 +124,43 @@ def printJobs(i, uName):
             pass
 
     # deletes the job if user posted the job
-    else:
+    else: 
         selection = input("Do you want to delete this job? (Y/N) ")
         if selection.lower() == "y":
-            deleteJob(i, uName, jobID)
+            deleteJob(i, uName)
         elif selection.lower() == "n":
             pass
         else:
             print("Invalid input")
             printJobs(i, uName)
 
+    
 
 # this function lists the (up to) 10 current job listings and offers the option to add more if there is room
 def showOptions(uName):
+
     # selects from job menu
     option = int(input(
         "Please select from the following options:\n1 - Show jobs you already applied to\n2 - Show jobs saved\n3 - Show all jobs\n4 - Post a new job\n5 - Return to main menu\n"))
 
     if option == 1:
         showAppliedJobs(uName)
-
+      
     elif option == 2:
         showSavedJobs(uName)
-
+      
     elif option == 3:
-        showJobs(uName)
+        showJobs(uName) 
 
     elif option == 4:
-        postJob(uName)
-
+        postJob(uName)  
+    
     elif option == 5:
         returnToOption(0, uName)
-
-    else:
+        
+    else: 
         print("Invalid input")
         exit(-1)
-
 
 # posts a new job
 def postJob(uName):
@@ -175,7 +177,7 @@ def postJob(uName):
             pass
         else:
             print("Invalid input")
-
+            
     else:
         # else, it returns to the list of options
         print("Job list is full! Returning to options...")
@@ -185,9 +187,9 @@ def postJob(uName):
 def applyForJob(i, uName):
     # gets the dictionary of jobs and applications
     jobs = getJson("jobs")
-
+    
     # gets the job ID 
-    jobSelected = jobs[i - 1]
+    jobSelected = jobs[i-1]
     jobIdentifier = jobSelected["jobID"]
 
     createApplication(jobIdentifier, uName)
@@ -205,7 +207,6 @@ def applyForJob(i, uName):
     with open("jobs.json", "w") as f:
         json.dump(jobs, f)
 
-
 # this function saves the job in the Saved Jobs list for the user
 def saveJobs(jobId, uName):
     users = readUsers()
@@ -216,45 +217,35 @@ def saveJobs(jobId, uName):
                 if jobId == job:
                     saved = True
                     break
-
-            if saved == False:
+            
+            if saved == False:  
                 user["jobsSaved"].append(jobId)
-
+                
             else:
                 pass
     with open("users.json", "w") as f:
         json.dump(users, f)
 
+# this functions delete a job ***not finished yet
+def deleteJob(i, uName):
 
-# this function deletes a job ***not finished yet
-def deleteJob(i, uName, jobID):
     # gets the dictionary of jobs
-    jobs = getJson("jobs")
+    jobs = getJson("jobs")    
+ 
+    # gets the job ID   
+    jobSelected = jobs[i-1]
+    jobIdentifier = jobSelected["jobID"]
+
+    # gets list of the job applicants
     jobApplicants = []
-    # remove the job from jobs.json
-    for job in jobs:
-        if job["jobID"] == jobID:
-            jobApplicants = job["applicants"]
-            jobs.remove(job)
+    jobApplicants.append(jobSelected["applicants"])
 
-    # get users
-    users = getJson("users")
-
-    notification = "The job with the job id {} you have applied for has been deleted.".format(jobID)
-    # remove the application from other users
-    for jobApplicant in jobApplicants:
-        for user in users:
-            if jobApplicant == user['username']:
-                user["jobsApplied"].remove(jobID)
-                user["notifications"].append(notification)
-
+     
+    jobs.remove(jobSelected)
     with open("jobs.json", "w") as f:
         json.dump(jobs, f)
-
-    with open("users.json", "w") as f:
-        json.dump(users, f)
-
-
+     
+    
 # adds application to applications.json
 def createApplication(jobId, uName):
     # gets the dictionary of applications
@@ -273,13 +264,12 @@ def createApplication(jobId, uName):
     print("Application submitted!")
     return
 
-
 # shows applied jobs
 def showAppliedJobs(uName):
     users = readUsers()
 
     # gets the dictionary of jobs
-    jobs = getJson("jobs")
+    jobs = getJson("jobs")    
 
     # gets the jobs ID from the appliedJobs list for user
     jobsID = []
@@ -292,14 +282,14 @@ def showAppliedJobs(uName):
     numJobs = len(jobsID)
     if numJobs == 0:
         print("You have not applied to any job yet.\n")
-
+    
     else:
         # find the Title for the jobs
         for job in jobs:
             for jobsIDs in jobsID:
                 if job["jobID"] == jobsIDs:
-                    print(f'Applied: {job["title"]}' + " - " + f'Employer: {job["employer"]}' + "\n\n")
-
+                    print(f'Applied: {job["title"]}' + " - " + f'Employer: {job["employer"]}' + "\n\n")  
+            
     return
 
 
@@ -308,11 +298,11 @@ def showSavedJobs(uName):
     users = readUsers()
 
     # gets the dictionary of jobs
-    jobs = getJson("jobs")
+    jobs = getJson("jobs")    
 
     # gets the jobs ID from the savedJobs list for user
     jobsID = []
-    # savedJobs = []
+    #savedJobs = []
     for user in users:
         if user["username"] == uName:
             for job in user["jobsSaved"]:
@@ -322,47 +312,15 @@ def showSavedJobs(uName):
     numJobs = len(jobsID)
     if numJobs == 0:
         print("You have not saved any job.\n")
-
+    
     else:
         # find the Title for the jobs
         for job in jobs:
             for jobsIDs in jobsID:
                 if job["jobID"] == jobsIDs:
-                    # savedJobs.append({"jobId": jobsIDS, "title": job["title"], "employer": job["employer"]})
-                    print(f'Saved: {job["title"]}' + " - " + f'Employer: {job["employer"]}' + "\n\n")
+                    #savedJobs.append({"jobId": jobsIDS, "title": job["title"], "employer": job["employer"]})
+                    print(f'Saved: {job["title"]}' + " - " + f'Employer: {job["employer"]}' + "\n\n")  
 
-                    # unsave message option
-
+    #unsave message option        
+            
     return
-
-
-def showNotAppliedJobs(uName):
-    jobs = getJson("jobs")
-    users = readUsers()
-    userAppliedJobs = []
-
-    # get the jobs applied by the user and store them in userAppliedJobs
-    for user in users:
-        if user["username"] == uName:
-            userAppliedJobs = user["jobsApplied"]
-
-
-    count = 1
-    for job in jobs:
-        if job["jobID"] not in userAppliedJobs:
-            print("Job {}:".format(count))
-            print("Title: {}".format(job["title"]))
-            print("Description: {}".format(job["description"]))
-            print("Employer: {}".format(job["employer"]))
-            print("Location: {}".format(job["location"]))
-            print("Salary: {}".format(job["salary"]))
-            print()
-            count = count + 1
-
-
-
-
-
-
-
-
