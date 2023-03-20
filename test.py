@@ -1,10 +1,11 @@
+import os
+
 import pytest
 from feed import *
-from profile import *
 from network_utils import *
-# necessary imports for epic 5
-import builtins
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, mock_open
+from tempfile import NamedTemporaryFile
+import json
 
 
 def test_homeScreen(capsys):
@@ -33,110 +34,33 @@ def test_mainPage(capsys, monkeypatch, test_inputs, messages) -> None:
         assert messages1 in out
 
 
-def test_signIn(capsys, monkeypatch):
-    writeUser("test_user1", "Test123@", "Tom", "Smith", "USF", "CS", "English", "on", "on", "on", ["user2"], ["user3"],
-              "")
-
-    def mock_input(prompt):
-        if "username" in prompt:
-            return "test_user1"
-        else:
-            return "Test123@"
-
-    monkeypatch.setattr("builtins.input", mock_input)
-
-    username = signIn()
-    out, err = capsys.readouterr()
-
-    assert username == "test_user1"
-    assert "Successfully logged in!\n\nCurrent Language is English\n\n" in out
+@patch("builtins.input")
+def test_signIn(input_mock):
+    input_mock.side_effect = ["username", "password"]
+    readUsers_mock = MagicMock(return_value=[{"username": "username", "password": "password", "language": "en"}])
+    with patch("authentication.readUsers", readUsers_mock):
+        result = signIn()
+        assert result == "username"
 
 
-# def test_signUp(capsys, monkeypatch):
-#     users = [
-#         {"username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
-#          "major": "CS", "language": "English",
-#          "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"], "friendRequests": ["user3"]}]
-#     with open("test_users.json", "w") as f:
-#         json.dump(users, f)
-#
-#     test_inputs = ['user2', 'Test123#', 'John', 'Doe', 'English', 'on', 'on', 'on']
-#     monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-#
-#     signUp()
-#     out, err = capsys.readouterr()
-#     assert "Successfully signed up!" in out
-#
-#     with open("users.json", "r") as f:
-#         data = json.load(f)
-#
-#     assert {
-#                "username": "user1", "password": "Test123@", "firstName": "Tom", "lastName": "Smith", "college": "USF",
-#                "major": "CS", "language": "English",
-#                "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"],
-#                "friendRequests": ["user3"]} in data
+@patch("builtins.input")
+@patch("authentication.readUsers")
+@patch("authentication.writeUser")
+def test_signUp(writeUser_mock, readUsers_mock, input_mock):
+    input_mock.side_effect = ["new_username", "Test123!", "First", "Last", "College", "Major"]
+    readUsers_mock.return_value = [{"username": "existing_username", "password": "password", "language": "en"}]
+    result = signUp()
+    writeUser_mock.assert_called_with("new_username", "Test123!", "First", "Last", "College", "Major", "English",
+                                      "on", "on", "on", [], [], None)
+    assert result == "new_username"
 
 
-@pytest.fixture(autouse=True)
-def test_readUsers():
-    data = readUsers()
-    appended_data = {"username": "test_user", "password": "Test123@", "firstName": "Tom", "lastName": "Smith",
-                     "college": "USF",
-                     "major": "CS", "language": "English",
-                     "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": ["user2"],
-                     "friendRequests": ["user3"]}
-    data.append(appended_data)
-
-    with open("users.json", "w") as f:
-        json.dump(data, f)
-
+@patch("builtins.open", new_callable=mock_open,
+       read_data='[{"username": "user1", "password": "password1", "language": "en"}]')
+def test_readUsers(open_mock):
     result = readUsers()
-
-    assert appended_data in result
-
-
-def test_writeUser():
-    username = "user1"
-    password = "Test123@"
-    firstName = "Tom"
-    lastName = "Smith"
-    language = "English"
-    inCollegeEmail = "on"
-    SMS = "on"
-    targetedAds = "on"
-    college = "USF"
-    major = "Computer Science"
-    friends = ""
-    friendRequests = ""
-    profile = ""
-    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile)
-
-    with open("users.json", "r") as f:
-        data = json.load(f)
-
-    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests,
-            "profile": profile} in data
-
-
-# def test_updateUserInfo():
-#     username = "user1"
-#     password = "Test123@"
-#     firstName = "Tom"
-#     lastName = "Smith"
-#     language = "English"
-#     updateParam = "inCollegeEmail"
-#     updateInfo = "off"
-#     SMS = "on"
-#     targetedAds = "on"
-#     updateUserInfo(username, updateParam, updateInfo)
-#     with open("users.json", "r") as f:
-#         data = json.load(f)
-#
-#     assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-#             "language": language, "inCollegeEmail": "off", "SMS": SMS, "targetedAds": targetedAds} in data
+    open_mock.assert_called_with("users.json", "r")
+    assert result == [{"username": "user1", "password": "password1", "language": "en"}]
 
 
 def test_checkPassword():
@@ -149,14 +73,19 @@ def test_checkPassword():
         assert checkPassword(p) == False
 
 
-def test_getJson():
-    data = [{"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": 100.0,
-             "Name": "Tom Smith"}]
-    with open("test_jobs.json", "w") as f:
-        json.dump(data, f)
+def test_getJson(tmp_path):
+    # Create a temporary file for testing
+    test_file = tmp_path / "test_data.json"
+    # Write some sample data to the file
+    with open(test_file, "w") as f:
+        json.dump(
+            {"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa", "salary": 100.0,
+             "Name": "Tom Smith"}, f)
 
-    result = getJson("jobs")
-    assert result[0] == data[0]
+    # Call the function to load the data
+    data = getJson(str(tmp_path / "test_data"))
+    assert data == {"title": "Engineer", "description": "Good job", "employer": "USF", "location": "Tampa",
+                    "salary": 100.0, "Name": "Tom Smith"}
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages",
@@ -179,9 +108,66 @@ def test_createJob(capsys, monkeypatch, test_inputs, test_inputs1, messages) -> 
         assert messages in out
 
 
-def test_printJobs(capsys):
-    printJobs()
-    out, err = capsys.readouterr()
+@pytest.mark.parametrize("test_input, message",
+                         [(['Test Job', 'Test Description', 'Test School', 'Test City', '100'],
+                           "Job created! Returning back to options...\n")])
+def test_createJob(capsys, monkeypatch, test_input, message) -> None:
+    # Get the original contents of the jobs.json file
+    with open("jobs.json", "r") as f:
+        data = json.load(f)
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0))
+        createJob("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert message in out
+
+    # Rewrite the original file with the old contents
+    with open("jobs.json", "w") as f:
+        json.dump(data, f)
+
+
+def test_writeUser():
+    # Get the original contents of the jobs.json file
+    with open("users.json", "r") as f:
+        data = json.load(f)
+
+    username = "user1"
+    password = "Test123@"
+    firstName = "Tom"
+    lastName = "Smith"
+    language = "English"
+    inCollegeEmail = "on"
+    SMS = "on"
+    targetedAds = "on"
+    college = "USF"
+    major = "Computer Science"
+    friends = ""
+    friendRequests = ""
+    profile = ""
+    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
+              friends, friendRequests, profile)
+
+    with open("users.json", "r") as f:
+        usersData = json.load(f)
+
+    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
+            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
+            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests,
+            "profile": profile} in usersData
+
+    # Rewrite the original file with the old contents
+    with open("users.json", "w") as f:
+        json.dump(data, f)
+
+
+@pytest.mark.parametrize("test_input, message",
+                         [(['Test Job', 'Test Description', 'Test School', 'Test City', '100'],
+                           "Job created! Returning back to options...\n")])
+def test_printJobs(capsys, monkeypatch, test_input, message) -> None:
+    # Get the original contents of the jobs.json file
+    with open("jobs.json", "r") as f:
+        data = json.load(f)
 
     message = 'Job: 1\n\n'
     message += 'Title: Engineer\n'
@@ -189,7 +175,17 @@ def test_printJobs(capsys):
     message += 'Employer: USF\n'
     message += 'Location: Tampa\n'
     message += 'Salary: 100.0\n\n\n'
-    assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0))
+        createJob("user1")
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
+
+    # Rewrite the original file with the old contents
+    with open("jobs.json", "w") as f:
+        json.dump(data, f)
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
@@ -201,6 +197,10 @@ def test_printJobs(capsys):
                            "Job created! Returning back to options...\n")])
 def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4,
                  messages) -> None:
+    # Get the original contents of the jobs.json file
+    with open("jobs.json", "r") as f:
+        data = json.load(f)
+
     try:
         monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
         findJob('user1')
@@ -240,25 +240,41 @@ def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, t
     out, err = capsys.readouterr()
     assert "Job list is full! Returning to options..." in out
 
+    # Rewrite the original file with the old contents
+    with open("jobs.json", "w") as f:
+        json.dump(data, f)
 
-@pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
+
+@pytest.mark.parametrize("test_input1, test_input2, message1, message2",
                          [(['Tom', 'Smith'], ['Jim', 'Frey'],
                            "They are a part of the InCollege system\n",
                            "They are not yet a part of the InCollege system")])
-def test_findPeople(capsys, monkeypatch, test_inputs, test_inputs1, messages, messages1) -> None:
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-        findPeople()
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
+def test_findPeople(capsys, monkeypatch, test_input1, test_input2, message1, message2) -> None:
+    # Get the original contents of the jobs.json file
+    with open("users.json", "r") as f:
+        data = json.load(f)
+
+    with open("users.json", "w") as f:
+        json.dump([{"firstName": "Tom", "lastName": "Smith"}], f)
 
     try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
         findPeople()
     except IndexError:
         out, err = capsys.readouterr()
-        assert messages1 in out
+        assert message1 in out
+
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input2.pop(0))
+        findPeople()
+    except IndexError:
+        out, err = capsys.readouterr()
+        assert message2 in out
+
+    # Rewrite the original file with the old contents
+    with open("users.json", "w") as f:
+        json.dump(data, f)
+
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
@@ -399,8 +415,8 @@ def test_selectInCollegeImportant(capsys, monkeypatch, test_input1, test_message
         assert test_message5 in out
 
 
-# options 5, 6, 7 are still under construction, this test unit must be updated to support
-# the rest of the cases once the code is finished
+
+
 @pytest.mark.parametrize("test_input1, test_input2, test_message1, test_message2",
                          [(['2', '0', '3', '0', '4', '0'], ['5', '0', '6', '0', '7', '0'],
                            "We're here to help\nIn College: Welcome to In College, the world's largest college "
@@ -437,6 +453,10 @@ def test_selectOption(capsys, monkeypatch, test_input1, test_message1):
 
 @pytest.mark.parametrize("test_message", ['You have pending friend requests\n'])
 def test_requestDisplay(capsys, monkeypatch, test_message):
+    # Get the original contents of the jobs.json file
+    with open("users.json", "r") as f:
+        data = json.load(f)
+
     writeUser("test_user", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
               ["Test"], "")
     requestDisplay("test_user")
@@ -447,9 +467,17 @@ def test_requestDisplay(capsys, monkeypatch, test_message):
         out, err = capsys.readouterr()
         assert test_message in out
 
+    # Rewrite the original file with the old contents
+    with open("users.json", "w") as f:
+        json.dump(data, f)
+
 
 @pytest.mark.parametrize("test_message", ['You have pending friend requests:\nFriendRequest'])
 def test_checkFriendRequests(capsys, monkeypatch, test_message):
+    # Get the original contents of the jobs.json file
+    with open("users.json", "r") as f:
+        data = json.load(f)
+
     writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come",
               "off", "off", ["Test"],
               ["FriendRequest"], "")
@@ -459,9 +487,15 @@ def test_checkFriendRequests(capsys, monkeypatch, test_message):
         out, err = capsys.readouterr()
         assert test_message in out
 
+    # Rewrite the original file with the old contents
+    with open("users.json", "w") as f:
+        json.dump(data, f)
 
-# Test cases for Epic 5
 def test_writeProfile():
+    # Get the original contents of the profiles.json file
+    with open("profiles.json", "r") as f:
+        data = json.load(f)
+
     username = "u1"
     title = "InCollegeProfile"
     major = "Computer Science"
@@ -473,60 +507,77 @@ def test_writeProfile():
     education = [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]
     writeProfile(username, title, major, university, about, experience, education)
 
-    with open("profiles_test.json", "r") as f:
-        data = json.load(f)
+    with open("profiles.json", "r") as f:
+        test_data = json.load(f)
 
     assert {"username": username, "title": title, "major": major, "university": university,
-            "about": about, "experience": experience, "education": education} in data
+            "about": about, "experience": experience, "education": education} in test_data
+
+    # Rewrite the original file with the old contents
+    with open("profiles.json", "w") as f:
+        json.dump(data, f)
 
 
 @pytest.fixture(autouse=True)
 def test_readProfiles():
     data = readProfiles()
-    appended_data = {"username": "u1", "title": "InCollegeProfile", "major": "Computer Science",
-                     "university": "University Of South Florida", "about": "this is the paragraph about myself",
-                     "experience": [
-                         {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
-                          "location": "tampa,fl",
-                          "description": "attended classes"}],
-                     "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}
-    data.append(appended_data)
+    with open("profiles.json", "r") as f:
+        profiles = json.load(f)
 
-    with open("profiles_test.json", "w") as f:
-        json.dump(data, f)
-
-    result = readProfiles()
-
-    assert appended_data in result
+    assert data == profiles
 
 
 @pytest.mark.parametrize(" test_message",
-                         [("\nA M\nTitle: InCollegeProfile\nMajor: Computer "
+                         [("\nTest User\nTitle: InCollegeProfile\nMajor: Computer "
                            'Science"\n"University": "University Of South Florida"\n"About": "this is '
                            'the paragraph about myself"\nExperience: \n\n"Title": "student"\n"Employer": '
                            '"usf"\n"Date started": "01/01/2023"\n"date ended": ""\n"Location": "tampa,'
                            'fl"\n"Description": "attended classes"\n\n"Education"\n\n"School Name": '
                            '"usf"\n"Degree": "bachelors"\n"Years attended": "2023-2023"\n')])
 def test_printProfile(capsys, monkeypatch, test_message):
+    # Get the original contents of the profiles.json file
+    with open("users.json", "r") as f:
+        userData = json.load(f)
+
+    with open("profiles.json", "r") as f:
+        profilesData = json.load(f)
+
+    with open("users.json", "w") as f:
+        json.dump([{"username":"testuser","firstName": "Test", "lastName": "User"}], f)
+
+    with open("profiles.json", "w") as f:
+        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
+
     try:
-        printProfile("u1")
+        printProfile("testuser")
     except OSError:
         out, err = capsys.readouterr()
         assert test_message in out
 
+    # Rewrite the original file with the old contents
+    with open("users.json", "w") as f:
+        json.dump(userData, f)
+    with open("profiles.json", "w") as f:
+        json.dump(profilesData, f)
+
 
 def test_updateProfile():
+    with open("profiles.json", "r") as f:
+        profilesData = json.load(f)
+
     # calls updateProfile with a valid parameter
-    updateProfile("u1", "major", "Information Technology")
+    with open("profiles.json", "w") as f:
+        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
+
+    updateProfile("testuser", "major", "Information Technology")
 
     # reads the test file and verifies that the profile was updated
     with open("profiles.json", "r") as f:
         updated_profiles = json.load(f)
         assert updated_profiles[0]["major"] == "Information Technology"
 
-    # revert back
-    updateProfile("u1", "major", "Computer Science")
-
+    with open("profiles.json", "w") as f:
+        json.dump(profilesData, f)
 
 @pytest.mark.parametrize("test_input, test_message",
                          [(["InCollegeProfile", "Computer Science", "University of South Florida",
@@ -534,6 +585,9 @@ def test_updateProfile():
                             "attended classes", "yes", "usf", "bachelors", "2023-2023"],
                            "Starting to create profile\n\n")])
 def test_createProfile(test_input, test_message, monkeypatch, capsys):
+    with open("profiles.json", "r") as f:
+        profilesData = json.load(f)
+
     try:
         # calls createProfile with the test input
         test_username = "user1"
@@ -543,18 +597,8 @@ def test_createProfile(test_input, test_message, monkeypatch, capsys):
         out, err = capsys.readouterr()
         assert test_message in out
 
+    with open("profiles.json", "w") as f:
+        json.dump(profilesData, f)
 
-#@pytest.mark.parametrize("test_input, test_message",
-#                         [(["friend1"], ["List of friends: \n"])])
-#def test_friendsProfile(monkeypatch, capsys, test_input, test_message):
-    # writes a test user
-#    writeUser("test_user", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
-#    writeUser("friend1", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
-#    writeUser("friend2", "password", "A", "B", "usf", "Computer Science", "English", "on", "on", "on", [], [], "profile")
 
-#    addFriend("test_user", "friend1")
-#    addFriend("test_user", "friend2")
-#    monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0))
-#    friendsProfile("test_user")
-#    out, err = capsys.readouterr()
-#    assert test_message in out
+
