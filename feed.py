@@ -326,7 +326,7 @@ def selectOption(uName):
     ))
 
     if option == 1:
-        findJob(uName)
+        showOptions(uName)
         selectOption(uName)
     elif option == 2:
         if findPeople():  # if findPeople() returns true, it calls back to main to log in or sign up
@@ -359,3 +359,4 @@ def selectOption(uName):
     else:
         print("Not a valid option")
         exit(-1)
+
