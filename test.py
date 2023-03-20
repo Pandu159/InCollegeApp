@@ -600,5 +600,28 @@ def test_createProfile(test_input, test_message, monkeypatch, capsys):
     with open("profiles.json", "w") as f:
         json.dump(profilesData, f)
 
+def test_postJob():
+    pass
+
+def test_applyForJob():
+    pass
+
+def test_saveJobs():
+    pass
+
+def test_deleteJob():
+    pass
+
+def test_createApplication():
+    pass
+
+def test_showAppliedJobs():
+    pass
+
+def test_showSavedJobs():
+    pass
+
+def test_showNotAppliedJobs():
+    pass
 
 

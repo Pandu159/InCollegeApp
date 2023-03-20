@@ -1,1 +1,3 @@
-[{"title": "Dentist", "description": "Great job", "employer": "FIU", "location": "Miami", "salary": 200.0, "Name": "default"}, {"title": "Software Engineer", "description": "Designing PRograms", "employer": "Google", "location": "Tampa", "salary": 110000.0, "Name": "A M"}]
+[{"title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0, "Name": "A M", "username": "u1", "applicants": ["u2", "u3"], "jobID": 9358},
+  {"title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0, "Name": "A M", "username": "u1", "applicants": ["u2", "u3"], "jobID": 9258},
+ {"title": "Researcher", "description": "Research on topics", "employer": "Microsoft", "location": "Tampa, FL", "salary": 130000.0, "Name": "A M", "username": "u2", "applicants": [], "jobID": 9138}]
