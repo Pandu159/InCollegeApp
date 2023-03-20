@@ -88,6 +88,7 @@ def printJobs(i, uName):
 
     # prints the details of the job
     jobDesc = jobs[i-1]
+    jobID = jobDesc["jobID"]
     jobIdentifier = jobDesc["jobID"]
 
     # prints the information about the job
@@ -324,3 +325,55 @@ def showSavedJobs(uName):
     #unsave message option        
             
     return
+
+def deleteJob(i, uName, jobID):
+    # gets the dictionary of jobs
+    jobs = getJson("jobs")
+    jobApplicants = []
+    # remove the job from jobs.json
+    for job in jobs:
+        if job["jobID"] == jobID:
+            jobApplicants = job["applicants"]
+            jobs.remove(job)
+
+    # get users
+    users = getJson("users")
+
+    notification = "The job with the job id {} you have applied for has been deleted.".format(jobID)
+    # remove the application from other users
+    for jobApplicant in jobApplicants:
+        for user in users:
+            if jobApplicant == user['username']:
+                user["jobsApplied"].remove(jobID)
+                user["notifications"].append(notification)
+
+    with open("jobs.json", "w") as f:
+        json.dump(jobs, f)
+
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+
+def showNotAppliedJobs(uName):
+    jobs = getJson("jobs")
+    users = readUsers()
+    userAppliedJobs = []
+
+    # get the jobs applied by the user and store them in userAppliedJobs
+    for user in users:
+        if user["username"] == uName:
+            userAppliedJobs = user["jobsApplied"]
+
+
+    count = 1
+    for job in jobs:
+        if job["jobID"] not in userAppliedJobs:
+            print("Job {}:".format(count))
+            print("Title: {}".format(job["title"]))
+            print("Description: {}".format(job["description"]))
+            print("Employer: {}".format(job["employer"]))
+            print("Location: {}".format(job["location"]))
+            print("Salary: {}".format(job["salary"]))
+            print()
+            count = count + 1
+
+
