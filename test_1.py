@@ -590,13 +590,81 @@ def test_saveJobs():
         json.dump(old_users, f)
 
 
-def test_showAppliedJobs():
-    pass
+
+@pytest.mark.parametrize("uName, applied_jobs, expected_output", [
+    ("testUser2", [], "You have not applied to any job yet.\n\n"),
+])
+def test_showAppliedJobs(uName, applied_jobs, expected_output, capsys):
+    with patch("authentication.readUsers") as readUsers_mock:
+        readUsers_mock.return_value = [
+            {
+                "username": uName,
+                "jobsApplied": [job["jobID"] for job in applied_jobs],
+            }
+        ]
+
+        with patch("helper.getJson") as getJson_mock:
+            getJson_mock.return_value = applied_jobs
+
+            showAppliedJobs(uName)
+            out, _ = capsys.readouterr()
+            assert out == expected_output
 
 
-def test_showSavedJobs():
-    pass
+@pytest.mark.parametrize("uName, users, jobs, expected_output", [
+    ("testUser2", [{"username": "testUser2", "jobsSaved": []}], [], "You have not saved any job.\n\n"),
+])
+def test_showSavedJobs(uName, users, jobs, expected_output, capsys):
+    with patch("authentication.readUsers") as readUsers_mock:
+        readUsers_mock.return_value = users
 
+        with patch("helper.getJson") as getJson_mock:
+            getJson_mock.return_value = jobs
 
-def test_showNotAppliedJobs():
+            showSavedJobs(uName)
+            out, _ = capsys.readouterr()
+            assert out == expected_output
+
+@patch("helper.getJson")
+@patch("authentication.readUsers")
+def test_showNotAppliedJobs(readUsers_mock, getJson_mock, capsys):
+    readUsers_mock.return_value = [
+        {"username": "user1", "jobsApplied": []},
+        {"username": "user2", "jobsApplied": []}
+    ]
+
+    getJson_mock.return_value = [
+        {"jobID": 1, "title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0},
+        {"jobID": 2, "title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0},
+        {"jobID": 3, "title": "Researcher", "description": "Research on topics", "employer": "Microsoft", "location": "Tampa, FL", "salary": 130000.0},
+    ]
+
+    showNotAppliedJobs("user1")
+    out, err = capsys.readouterr()
+
+    expected_output = (
+        "Job 1:\n"
+        "Title: Software Engineer\n"
+        "Description: Design Programs\n"
+        "Employer: Google\n"
+        "Location: Tampa, FL\n"
+        "Salary: 100000.0\n"
+        "\n"
+        "Job 2:\n"
+        "Title: Software Engineer\n"
+        "Description: Design Programs\n"
+        "Employer: Google\n"
+        "Location: Tampa, FL\n"
+        "Salary: 100000.0\n"
+        "\n"
+        "Job 3:\n"
+        "Title: Researcher\n"
+        "Description: Research on topics\n"
+        "Employer: Microsoft\n"
+        "Location: Tampa, FL\n"
+        "Salary: 130000.0\n"
+        "\n"
+    )
+
+    assert out == expected_output
     pass
