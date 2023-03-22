@@ -1,5 +1,2 @@
-<<<<<<< HEAD
 [{"username": "u2", "password": "Test123!", "firstName": "Test", "lastName": "Test", "college": "Test", "major": "Test", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendRequests": [], "profile": null, "jobsApplied": [9358], "jobsSaved": [], "notifications": []}, {"username": "u3", "password": "Test123!", "firstName": "Test", "lastName": "Test", "college": "Test", "major": "Test", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendRequests": [], "profile": null, "jobsApplied": [9358, 9138], "jobsSaved": [], "notifications": []}]
-=======
-[{"username": "u2", "password": "Test123!", "firstName": "Test", "lastName": "Test", "college": "Test", "major": "Test", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendRequests": [], "profile": null, "jobsApplied": [9358], "jobsSaved": [], "notifications": []}, {"username": "u3", "password": "Test123!", "firstName": "Test", "lastName": "Test", "college": "Test", "major": "Test", "language": "English", "inCollegeEmail": "on", "SMS": "on", "targetedAds": "on", "friends": [], "friendRequests": [], "profile": null, "jobsApplied": [9358, 9138], "jobsSaved": [], "notifications": []}]
->>>>>>> a50cdc8c0df8d3d66edf907b1ed5c2f3a1cce910
+
