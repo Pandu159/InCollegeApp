@@ -259,7 +259,7 @@ def createApplication(jobId, uName):
 
     applications.append(
         {"username": uName, "jobID": jobId, "gradDate": gradDate, "startDate": startDate, "description": description})
-    with open("applicantions.json", "w") as f:
+    with open("applications.json", "w") as f:
         json.dump(applications, f)
 
     print("Application submitted!")
