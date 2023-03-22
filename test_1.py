@@ -129,43 +129,6 @@ def test_createJob(capsys, monkeypatch, test_input, message) -> None:
         json.dump(data, f)
 
 
-def test_writeUser():
-    # Get the original contents of the jobs.json file
-    with open("users.json", "r") as f:
-        data = json.load(f)
-
-    username = "user1"
-    password = "Test123@"
-    firstName = "Tom"
-    lastName = "Smith"
-    language = "English"
-    inCollegeEmail = "on"
-    SMS = "on"
-    targetedAds = "on"
-    college = "USF"
-    major = "Computer Science"
-    friends = ""
-    friendRequests = ""
-    profile = ""
-    jobsApplied = ""
-    jobsSaved = ""
-    notifications = ""
-    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile, jobsApplied, jobsSaved, notifications)
-
-    with open("users.json", "r") as f:
-        usersData = json.load(f)
-
-    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests,
-            "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "notifications": notifications} in usersData
-
-    # Rewrite the original file with the old contents
-    with open("users.json", "w") as f:
-        json.dump(data, f)
-
-
 @pytest.mark.parametrize("test_input, message",
                          [(['Test Job', 'Test Description', 'Test School', 'Test City', '100'],
                            "Job created! Returning back to options...\n")])
@@ -570,10 +533,8 @@ def test_postJob(capsys, monkeypatch, test_input1, test_message1):
         assert test_message1 in out
 
 
-
 @pytest.mark.parametrize("test_input",
                          [['01/01/2024', '02/01/2024', 'I have the necessary skills and experience for this job.']])
-
 def test_create_application(monkeypatch, test_input, capsys):
     with open("applications.json", "r") as f:
         existing_applications = json.load(f)
@@ -604,11 +565,29 @@ def test_create_application(monkeypatch, test_input, capsys):
         json.dump(existing_applications, f)
 
 
+def test_saveJobs():
+    with open("users.json", "r") as f:
+        old_users = json.load(f)
+
+    test_user = {"username": "testuser", "password": "password", "jobsSaved": []}
+
+    with open("users.json", "w") as f:
+        json.dump([test_user], f)
 
 
+    job_id = "123"
+    saveJobs(job_id, test_user["username"])
 
-def test_deleteJob():
-    pass
+    with open("users.json", "r") as f:
+        users = json.load(f)
+
+    assert len(users) == 1
+    assert users[0]["username"] == test_user["username"]
+    assert len(users[0]["jobsSaved"]) == 1
+    assert users[0]["jobsSaved"][0] == job_id
+
+    with open("users.json", "w") as f:
+        json.dump(old_users, f)
 
 
 def test_showAppliedJobs():
