@@ -8,6 +8,7 @@ from unittest.mock import patch, MagicMock, mock_open
 from unittest.mock import patch, mock_open
 from tempfile import NamedTemporaryFile
 import json
+from authentication import *
 
 
 def test_homeScreen(capsys):

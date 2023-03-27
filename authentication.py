@@ -12,13 +12,13 @@ def readUsers():
 
 
 def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile, jobsApplied, jobsSaved):
+              friends, friendRequests, profile, jobsApplied, jobsSaved, accountTier):
     data = readUsers()
 
     data.append(
         {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
          "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved})
+         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": []})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -73,8 +73,14 @@ def signUp():
     jobsApplied = []
     jobsSaved = []
 
+    accountTier = "Standard"
+    isAccountUpgraded = input("Would you like to upgrade your account to a plus membership for $10/month? (Y/n)")
+
+    if isAccountUpgraded.lower() == 'y':
+        accountTier = "Plus"
+
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendsRequest, profile, jobsApplied, jobsSaved)
+              friends, friendsRequest, profile, jobsApplied, jobsSaved, accountTier)
 
     # create empty inbox
     createInbox(username)
