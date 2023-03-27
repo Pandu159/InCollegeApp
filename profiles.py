@@ -298,8 +298,8 @@ def checkFriend(username, targetUser):
 
 # this function sends a message to the target user from the current user
 def sendMessage(username, targetUser):
-    # check if current user is friends with target user
-    if checkFriend(username, targetUser):
+    # check if current user is friends with target user or if the user is a Plus member
+    if checkFriend(username, targetUser) or checkAccountTier(username) == "Plus" or checkAccountTier(targetUser) == "Plus":
         # initialize bool flag for valid user inbox
         flag = False
 
@@ -312,21 +312,19 @@ def sendMessage(username, targetUser):
         # search for target user's inbox
         for inbox in inboxes:
             if inbox["username"] == targetUser:
-                # check if inbox > 1 entry
-                if len(inbox["inbox"]) >= 1:
-                    for entries in inbox["inbox"]:
-                        newMessage = inbox["inbox"]
-                        newMessage.append({"senderUsername": username, "message": message})
-                        newMessage.append(entries)
+                # check if inbox is a dictionary or a list
+                if isinstance(inbox["inbox"], list):
+                    newMessage = [{"senderUsername": username, "message": message}]
+                    newMessage.extend(inbox["inbox"])
                     inbox["inbox"] = newMessage
-                else:
-                    inbox["inbox"] = {"senderUsername:": username, "message": message}
+                elif isinstance(inbox["inbox"], dict):
+                    inbox["inbox"] = {"senderUsername": username, "message": message}
                 flag = True
                 break
         # target user's inbox has not been created
         if not flag:
             createInbox(username)
-            sendMessage(username, targetUser)   # this will not be called infinitely bc flag will become true
+            sendMessage(username, targetUser)  # this will not be called infinitely bc flag will become true
 
         # appends message in target user's inbox with a return username
         try:
@@ -337,7 +335,7 @@ def sendMessage(username, targetUser):
             return
     # if current user is not friends with target user, it prints an error
     else:
-        print("I'm sorry, you are not friends with that person")
+        print("I'm sorry, you are not friends with that person.")
 
 
 # this function checks the inbox of the current user and prints messages, if any
@@ -422,3 +420,10 @@ def createInbox(username):
         print("inbox.json missing!")
         return
 
+
+def checkAccountTier(username):
+    users = getJson("users")
+
+    for user in users:
+        if user["username"] == username:
+            return user["accountTier"]

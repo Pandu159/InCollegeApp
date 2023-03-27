@@ -1,1 +1,1 @@
-[]
+[{"username": "u2", "inbox": [{"senderUsername": "u3", "message": "Hi"}]}, {"username": "u3", "inbox": [{"senderUsername": "u2", "message": "Hey!"}]}, {"username": "u4", "inbox": []}]

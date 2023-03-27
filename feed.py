@@ -358,6 +358,13 @@ def selectOption(uName):
         checkInbox(uName)
         selectOption(uName)
     elif option == 13:
+        # check if the user is a Plus member, and if so, give the option to list all the users
+        if checkAccountTier(uName) == "Plus":
+            listUsers = input("Would you like to get a list of users you can send a message to? (Y/n)")
+            if listUsers.lower() == 'Y'.lower():
+                users = getJson("users")
+                for user in users:
+                    print(user["username"])
         targetUser = input("What user would you like to send a message to?")
         sendMessage(uName, targetUser)
         selectOption(uName)
