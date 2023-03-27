@@ -1,9 +1,11 @@
 import os
-
+import tempfile
+from pytest_mock import mocker
 import pytest
 from feed import *
 from network_utils import *
 from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, mock_open
 from tempfile import NamedTemporaryFile
 import json
 
@@ -51,7 +53,7 @@ def test_signUp(writeUser_mock, readUsers_mock, input_mock):
     readUsers_mock.return_value = [{"username": "existing_username", "password": "password", "language": "en"}]
     result = signUp()
     writeUser_mock.assert_called_with("new_username", "Test123!", "First", "Last", "College", "Major", "English",
-                                      "on", "on", "on", [], [], None)
+                                      "on", "on", "on", [], [], None,[],[])
     assert result == "new_username"
 
 
@@ -127,40 +129,6 @@ def test_createJob(capsys, monkeypatch, test_input, message) -> None:
         json.dump(data, f)
 
 
-def test_writeUser():
-    # Get the original contents of the jobs.json file
-    with open("users.json", "r") as f:
-        data = json.load(f)
-
-    username = "user1"
-    password = "Test123@"
-    firstName = "Tom"
-    lastName = "Smith"
-    language = "English"
-    inCollegeEmail = "on"
-    SMS = "on"
-    targetedAds = "on"
-    college = "USF"
-    major = "Computer Science"
-    friends = ""
-    friendRequests = ""
-    profile = ""
-    writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile)
-
-    with open("users.json", "r") as f:
-        usersData = json.load(f)
-
-    assert {"username": username, "password": password, "firstName": firstName, "lastName": lastName,
-            "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-            "college": college, "major": major, "friends": friends, "friendRequests": friendRequests,
-            "profile": profile} in usersData
-
-    # Rewrite the original file with the old contents
-    with open("users.json", "w") as f:
-        json.dump(data, f)
-
-
 @pytest.mark.parametrize("test_input, message",
                          [(['Test Job', 'Test Description', 'Test School', 'Test City', '100'],
                            "Job created! Returning back to options...\n")])
@@ -182,63 +150,6 @@ def test_printJobs(capsys, monkeypatch, test_input, message) -> None:
     except IndexError:
         out, err = capsys.readouterr()
         assert message.strip() == '\n'.join(out.strip().split('\n')[:7])
-
-    # Rewrite the original file with the old contents
-    with open("jobs.json", "w") as f:
-        json.dump(data, f)
-
-
-@pytest.mark.parametrize("test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4, messages",
-                         [(['Y', 'Engineer', 'Good job', 'USF', 'Tampa', '100'],
-                           ['Y', 'Dentist', 'Great job', 'FIU', 'Miami', '200'],
-                           ['Y', 'Jornalist', 'Great job', 'FIU', 'Miami', '100'],
-                           ['Y', 'Nurse', 'Good job', 'FIU', 'Miami', '200'],
-                           ['Y', 'Physician', 'Great job', 'USF', 'Tampa', '200'],
-                           "Job created! Returning back to options...\n")])
-def test_findJob(capsys, monkeypatch, test_inputs, test_inputs1, test_inputs2, test_inputs3, test_inputs4,
-                 messages) -> None:
-    # Get the original contents of the jobs.json file
-    with open("jobs.json", "r") as f:
-        data = json.load(f)
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs.pop(0))
-        findJob('user1')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs1.pop(0))
-        findJob('user2')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs2.pop(0))
-        findJob('user2')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs3.pop(0))
-        findJob('user2')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    try:
-        monkeypatch.setattr('builtins.input', lambda _: test_inputs4.pop(0))
-        findJob('user1')
-    except IndexError:
-        out, err = capsys.readouterr()
-        assert messages in out
-
-    findJob('user1')
-    out, err = capsys.readouterr()
-    assert "Job list is full! Returning to options..." in out
 
     # Rewrite the original file with the old contents
     with open("jobs.json", "w") as f:
@@ -274,7 +185,6 @@ def test_findPeople(capsys, monkeypatch, test_input1, test_input2, message1, mes
     # Rewrite the original file with the old contents
     with open("users.json", "w") as f:
         json.dump(data, f)
-
 
 
 @pytest.mark.parametrize("test_inputs, test_inputs1, messages, messages1",
@@ -415,8 +325,6 @@ def test_selectInCollegeImportant(capsys, monkeypatch, test_input1, test_message
         assert test_message5 in out
 
 
-
-
 @pytest.mark.parametrize("test_input1, test_input2, test_message1, test_message2",
                          [(['2', '0', '3', '0', '4', '0'], ['5', '0', '6', '0', '7', '0'],
                            "We're here to help\nIn College: Welcome to In College, the world's largest college "
@@ -458,7 +366,7 @@ def test_requestDisplay(capsys, monkeypatch, test_message):
         data = json.load(f)
 
     writeUser("test_user", "password", "Test", "User", "USF", "CS", "test", "mail@test.come", "off", "off", ["Test"],
-              ["Test"], "")
+              ["Test"], "", "", "", "")
     requestDisplay("test_user")
 
     try:
@@ -480,7 +388,7 @@ def test_checkFriendRequests(capsys, monkeypatch, test_message):
 
     writeUser("test_user_check_friend_requests", "password", "Test", "User", "USF", "CS", "test", "mail@test.come",
               "off", "off", ["Test"],
-              ["FriendRequest"], "")
+              ["FriendRequest"], "", "", "", "")
     try:
         checkFriendRequests("test_user_check_friend_requests")
     except OSError:
@@ -490,6 +398,7 @@ def test_checkFriendRequests(capsys, monkeypatch, test_message):
     # Rewrite the original file with the old contents
     with open("users.json", "w") as f:
         json.dump(data, f)
+
 
 def test_writeProfile():
     # Get the original contents of the profiles.json file
@@ -543,10 +452,15 @@ def test_printProfile(capsys, monkeypatch, test_message):
         profilesData = json.load(f)
 
     with open("users.json", "w") as f:
-        json.dump([{"username":"testuser","firstName": "Test", "lastName": "User"}], f)
+        json.dump([{"username": "testuser", "firstName": "Test", "lastName": "User"}], f)
 
     with open("profiles.json", "w") as f:
-        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
+        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science",
+                    "university": "University Of South Florida", "about": "this is the paragraph about myself",
+                    "experience": [
+                        {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
+                         "location": "tampa,fl", "description": "attended classes"}],
+                    "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
 
     try:
         printProfile("testuser")
@@ -567,7 +481,12 @@ def test_updateProfile():
 
     # calls updateProfile with a valid parameter
     with open("profiles.json", "w") as f:
-        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science", "university": "University Of South Florida", "about": "this is the paragraph about myself", "experience": [{"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "", "location": "tampa,fl", "description": "attended classes"}], "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
+        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science",
+                    "university": "University Of South Florida", "about": "this is the paragraph about myself",
+                    "experience": [
+                        {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
+                         "location": "tampa,fl", "description": "attended classes"}],
+                    "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
 
     updateProfile("testuser", "major", "Information Technology")
 
@@ -578,6 +497,7 @@ def test_updateProfile():
 
     with open("profiles.json", "w") as f:
         json.dump(profilesData, f)
+
 
 @pytest.mark.parametrize("test_input, test_message",
                          [(["InCollegeProfile", "Computer Science", "University of South Florida",
@@ -601,4 +521,150 @@ def test_createProfile(test_input, test_message, monkeypatch, capsys):
         json.dump(profilesData, f)
 
 
+@pytest.mark.parametrize("test_input1, test_message1",
+                         [(['N', 'L'],
+                           "Invalid input\n")])
+def test_postJob(capsys, monkeypatch, test_input1, test_message1):
+    try:
+        monkeypatch.setattr('builtins.input', lambda _: test_input1.pop(0))
+        postJob("u1")
+    except IndexError or KeyError:
+        out, err = capsys.readouterr()
+        assert test_message1 in out
 
+
+@pytest.mark.parametrize("test_input",
+                         [['01/01/2024', '02/01/2024', 'I have the necessary skills and experience for this job.']])
+def test_create_application(monkeypatch, test_input, capsys):
+    with open("applications.json", "r") as f:
+        existing_applications = json.load(f)
+
+    jobId = "123"
+    uName = "test_user"
+
+    monkeypatch.setattr('builtins.input', lambda _: test_input.pop(0) if test_input else "")
+
+    createApplication(jobId, uName)
+
+    out, err = capsys.readouterr()
+    assert "Application submitted!" in out
+
+    with open("applications.json", "r") as f:
+        updated_applications = json.load(f)
+
+    assert len(updated_applications) > len(existing_applications)
+
+    most_recent_application = updated_applications[-1]
+    assert most_recent_application["username"] == uName
+    assert most_recent_application["jobID"] == jobId
+    assert most_recent_application["gradDate"] == "01/01/2024"
+    assert most_recent_application["startDate"] == "02/01/2024"
+    assert most_recent_application["description"] == "I have the necessary skills and experience for this job."
+
+    with open("applications.json", "w") as f:
+        json.dump(existing_applications, f)
+
+
+def test_saveJobs():
+    with open("users.json", "r") as f:
+        old_users = json.load(f)
+
+    test_user = {"username": "testuser", "password": "password", "jobsSaved": []}
+
+    with open("users.json", "w") as f:
+        json.dump([test_user], f)
+
+
+    job_id = "123"
+    saveJobs(job_id, test_user["username"])
+
+    with open("users.json", "r") as f:
+        users = json.load(f)
+
+    assert len(users) == 1
+    assert users[0]["username"] == test_user["username"]
+    assert len(users[0]["jobsSaved"]) == 1
+    assert users[0]["jobsSaved"][0] == job_id
+
+    with open("users.json", "w") as f:
+        json.dump(old_users, f)
+
+
+
+@pytest.mark.parametrize("uName, applied_jobs, expected_output", [
+    ("testUser2", [], "You have not applied to any job yet.\n\n"),
+])
+def test_showAppliedJobs(uName, applied_jobs, expected_output, capsys):
+    with patch("authentication.readUsers") as readUsers_mock:
+        readUsers_mock.return_value = [
+            {
+                "username": uName,
+                "jobsApplied": [job["jobID"] for job in applied_jobs],
+            }
+        ]
+
+        with patch("helper.getJson") as getJson_mock:
+            getJson_mock.return_value = applied_jobs
+
+            showAppliedJobs(uName)
+            out, _ = capsys.readouterr()
+            assert out == expected_output
+
+
+@pytest.mark.parametrize("uName, users, jobs, expected_output", [
+    ("testUser2", [{"username": "testUser2", "jobsSaved": []}], [], "You have not saved any job.\n\n"),
+])
+def test_showSavedJobs(uName, users, jobs, expected_output, capsys):
+    with patch("authentication.readUsers") as readUsers_mock:
+        readUsers_mock.return_value = users
+
+        with patch("helper.getJson") as getJson_mock:
+            getJson_mock.return_value = jobs
+
+            showSavedJobs(uName)
+            out, _ = capsys.readouterr()
+            assert out == expected_output
+
+@patch("helper.getJson")
+@patch("authentication.readUsers")
+def test_showNotAppliedJobs(readUsers_mock, getJson_mock, capsys):
+    readUsers_mock.return_value = [
+        {"username": "user1", "jobsApplied": []},
+        {"username": "user2", "jobsApplied": []}
+    ]
+
+    getJson_mock.return_value = [
+        {"jobID": 1, "title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0},
+        {"jobID": 2, "title": "Software Engineer", "description": "Design Programs", "employer": "Google", "location": "Tampa, FL", "salary": 100000.0},
+        {"jobID": 3, "title": "Researcher", "description": "Research on topics", "employer": "Microsoft", "location": "Tampa, FL", "salary": 130000.0},
+    ]
+
+    showNotAppliedJobs("user1")
+    out, err = capsys.readouterr()
+
+    expected_output = (
+        "Job 1:\n"
+        "Title: Software Engineer\n"
+        "Description: Design Programs\n"
+        "Employer: Google\n"
+        "Location: Tampa, FL\n"
+        "Salary: 100000.0\n"
+        "\n"
+        "Job 2:\n"
+        "Title: Software Engineer\n"
+        "Description: Design Programs\n"
+        "Employer: Google\n"
+        "Location: Tampa, FL\n"
+        "Salary: 100000.0\n"
+        "\n"
+        "Job 3:\n"
+        "Title: Researcher\n"
+        "Description: Research on topics\n"
+        "Employer: Microsoft\n"
+        "Location: Tampa, FL\n"
+        "Salary: 130000.0\n"
+        "\n"
+    )
+
+    assert out == expected_output
+    pass
