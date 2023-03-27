@@ -322,7 +322,8 @@ def selectOption(uName):
     option = int(input(
         "Please select from the following options:\n1 - Find a job/internship\n2 - Find someone you know" +
         "\n""3 - Learn a new skill\n""4 - Useful Links \n5 - InCollege Important Links \n6 - Check pending friends request"+
-        "\n7 - Search and add Friends\n8 - Show my network \n9 - Create/Modify Profile \n10 - View my profile \n11 - View friends profiles\n0 - To Log Out\n"
+        "\n7 - Search and add Friends\n8 - Show my network \n9 - Create/Modify Profile \n10 - View my profile \n11 - View friends profiles"
+        "\n12 - Check Inbox\n13 - Send Message\n0 - To Log Out\n"
     ))
 
     if option == 1:
@@ -353,6 +354,13 @@ def selectOption(uName):
         viewMyProfile(uName)
     elif option == 11:
         friendsProfile(uName)
+    elif option == 12:
+        checkInbox(uName)
+        selectOption(uName)
+    elif option == 13:
+        targetUser = input("What user would you like to send a message to?")
+        sendMessage(uName, targetUser)
+        selectOption(uName)
     elif option == 0:
         print("User logged out")
         exit(1)
