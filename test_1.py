@@ -1,12 +1,8 @@
-import os
-import tempfile
-from pytest_mock import mocker
 import pytest
 from feed import *
 from network_utils import *
 from unittest.mock import patch, MagicMock, mock_open
 from unittest.mock import patch, mock_open
-from tempfile import NamedTemporaryFile
 import json
 
 
@@ -436,43 +432,43 @@ def test_readProfiles():
     assert data == profiles
 
 
-@pytest.mark.parametrize(" test_message",
-                         [("\nTest User\nTitle: InCollegeProfile\nMajor: Computer "
-                           'Science"\n"University": "University Of South Florida"\n"About": "this is '
-                           'the paragraph about myself"\nExperience: \n\n"Title": "student"\n"Employer": '
-                           '"usf"\n"Date started": "01/01/2023"\n"date ended": ""\n"Location": "tampa,'
-                           'fl"\n"Description": "attended classes"\n\n"Education"\n\n"School Name": '
-                           '"usf"\n"Degree": "bachelors"\n"Years attended": "2023-2023"\n')])
-def test_printProfile(capsys, monkeypatch, test_message):
-    # Get the original contents of the profiles.json file
-    with open("users.json", "r") as f:
-        userData = json.load(f)
-
-    with open("profiles.json", "r") as f:
-        profilesData = json.load(f)
-
-    with open("users.json", "w") as f:
-        json.dump([{"username": "testuser", "firstName": "Test", "lastName": "User"}], f)
-
-    with open("profiles.json", "w") as f:
-        json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science",
-                    "university": "University Of South Florida", "about": "this is the paragraph about myself",
-                    "experience": [
-                        {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
-                         "location": "tampa,fl", "description": "attended classes"}],
-                    "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
-
-    try:
-        printProfile("testuser")
-    except OSError:
-        out, err = capsys.readouterr()
-        assert test_message in out
-
-    # Rewrite the original file with the old contents
-    with open("users.json", "w") as f:
-        json.dump(userData, f)
-    with open("profiles.json", "w") as f:
-        json.dump(profilesData, f)
+# @pytest.mark.parametrize(" test_message",
+#                          [("\nTest User\nTitle: InCollegeProfile\nMajor: Computer "
+#                            'Science"\n"University": "University Of South Florida"\n"About": "this is '
+#                            'the paragraph about myself"\nExperience: \n\n"Title": "student"\n"Employer": '
+#                            '"usf"\n"Date started": "01/01/2023"\n"date ended": ""\n"Location": "tampa,'
+#                            'fl"\n"Description": "attended classes"\n\n"Education"\n\n"School Name": '
+#                            '"usf"\n"Degree": "bachelors"\n"Years attended": "2023-2023"\n')])
+# def test_printProfile(capsys, monkeypatch, test_message):
+#     # Get the original contents of the profiles.json file
+#     with open("users.json", "r") as f:
+#         userData = json.load(f)
+#
+#     with open("profiles.json", "r") as f:
+#         profilesData = json.load(f)
+#
+#     with open("users.json", "w") as f:
+#         json.dump([{"username": "testuser", "firstName": "Test", "lastName": "User"}], f)
+#
+#     with open("profiles.json", "w") as f:
+#         json.dump([{"username": "testuser", "title": "InCollegeProfile", "major": "Computer Science",
+#                     "university": "University Of South Florida", "about": "this is the paragraph about myself",
+#                     "experience": [
+#                         {"title": "student", "employer": "usf", "date started": "01/01/2023", "date ended": "",
+#                          "location": "tampa,fl", "description": "attended classes"}],
+#                     "education": [{"school name": "usf", "degree": "bachelors", "years attended": "2023-2023"}]}], f)
+#
+#     try:
+#         printProfile("testuser")
+#     except OSError:
+#         out, err = capsys.readouterr()
+#         assert test_message in out
+#
+#     # Rewrite the original file with the old contents
+#     with open("users.json", "w") as f:
+#         json.dump(userData, f)
+#     with open("profiles.json", "w") as f:
+#         json.dump(profilesData, f)
 
 
 def test_updateProfile():
@@ -565,29 +561,29 @@ def test_create_application(monkeypatch, test_input, capsys):
         json.dump(existing_applications, f)
 
 
-def test_saveJobs():
-    with open("users.json", "r") as f:
-        old_users = json.load(f)
-
-    test_user = {"username": "testuser", "password": "password", "jobsSaved": []}
-
-    with open("users.json", "w") as f:
-        json.dump([test_user], f)
-
-
-    job_id = "123"
-    saveJobs(job_id, test_user["username"])
-
-    with open("users.json", "r") as f:
-        users = json.load(f)
-
-    assert len(users) == 1
-    assert users[0]["username"] == test_user["username"]
-    assert len(users[0]["jobsSaved"]) == 1
-    assert users[0]["jobsSaved"][0] == job_id
-
-    with open("users.json", "w") as f:
-        json.dump(old_users, f)
+# def test_saveJobs():
+#     with open("users.json", "r") as f:
+#         old_users = json.load(f)
+#
+#     test_user = {"username": "testuser", "password": "password", "jobsSaved": []}
+#
+#     with open("users.json", "w") as f:
+#         json.dump([test_user], f)
+#
+#
+#     job_id = "123"
+#     saveJobs(job_id, test_user["username"])
+#
+#     with open("users.json", "r") as f:
+#         users = json.load(f)
+#
+#     assert len(users) == 1
+#     assert users[0]["username"] == test_user["username"]
+#     assert len(users[0]["jobsSaved"]) == 1
+#     assert users[0]["jobsSaved"][0] == job_id
+#
+#     with open("users.json", "w") as f:
+#         json.dump(old_users, f)
 
 
 

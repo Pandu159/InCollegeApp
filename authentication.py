@@ -1,5 +1,6 @@
 # authentication
 import json
+from profiles import *
 
 
 def readUsers():
@@ -11,13 +12,13 @@ def readUsers():
 
 
 def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile, jobsApplied, jobsSaved, notifications):
+              friends, friendRequests, profile, jobsApplied, jobsSaved, accountTier):
     data = readUsers()
 
     data.append(
         {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
          "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "notifications": notifications})
+         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": []})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -72,8 +73,17 @@ def signUp():
     jobsApplied = []
     jobsSaved = []
 
+    accountTier = "Standard"
+    isAccountUpgraded = input("Would you like to upgrade your account to a plus membership for $10/month? (Y/n)")
+
+    if isAccountUpgraded.lower() == 'y':
+        accountTier = "Plus"
+
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendsRequest, profile, jobsApplied, jobsSaved)
+              friends, friendsRequest, profile, jobsApplied, jobsSaved, accountTier)
+
+    # create empty inbox
+    createInbox(username)
 
     print("Successfully signed up!")
     return username
@@ -90,7 +100,11 @@ def signIn():
                 if password == user["password"]:
                     print("Successfully logged in!\n")
                     language = user["language"]
-                    print(f"Current Language is {language}\n")
+                    print(f"Current Language is {language}")
+
+                    # checks user's inbox
+                    if checkMessageStart(username):
+                        print("You have messages in your inbox!\n")
                     return username
         print("User information invalid. Please enter again. ")
 

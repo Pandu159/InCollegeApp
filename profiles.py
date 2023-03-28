@@ -273,3 +273,157 @@ def friendsProfile(username):
     selection = int(input("Input 0 to return to previous screen.\n"))
     returnToOption(selection, username)
 
+
+# this function checks whether the current user is friends with the target user
+def checkFriend(username, targetUser):
+    # gets a list of users from users.json
+    users = getJson("users")
+
+    # searches user list for current user
+    for user in users:
+        if user["username"] == username:
+            # if friends list is not empty:
+            if len(user["friends"]) != 0:
+                # seraches friends list for target user
+                for friend in user["friends"]:
+                    # target user is found, returns true
+                    if friend == targetUser:
+                        return True
+                # target user was not found, returns false
+                return False
+            # friends list is empty, returns false
+            else:
+                return False
+
+
+# this function sends a message to the target user from the current user
+def sendMessage(username, targetUser):
+    # check if current user is friends with target user or if the user is a Plus member
+    if checkFriend(username, targetUser) or checkAccountTier(username) == "Plus" or checkAccountTier(targetUser) == "Plus":
+        # initialize bool flag for valid user inbox
+        flag = False
+
+        # gets message from input
+        message = input("What is your message: ")
+
+        # gets the list of inboxes
+        inboxes = getJson("inbox")
+
+        # search for target user's inbox
+        for inbox in inboxes:
+            if inbox["username"] == targetUser:
+                # check if inbox is a dictionary or a list
+                if isinstance(inbox["inbox"], list):
+                    newMessage = [{"senderUsername": username, "message": message}]
+                    newMessage.extend(inbox["inbox"])
+                    inbox["inbox"] = newMessage
+                elif isinstance(inbox["inbox"], dict):
+                    inbox["inbox"] = {"senderUsername": username, "message": message}
+                flag = True
+                break
+        # target user's inbox has not been created
+        if not flag:
+            createInbox(username)
+            sendMessage(username, targetUser)  # this will not be called infinitely bc flag will become true
+
+        # appends message in target user's inbox with a return username
+        try:
+            with open("inbox.json", "w") as f:
+                json.dump(inboxes, f)
+        except FileNotFoundError:
+            print("inbox.json missing!")
+            return
+    # if current user is not friends with target user, it prints an error
+    else:
+        print("I'm sorry, you are not friends with that person.")
+
+
+# this function checks the inbox of the current user and prints messages, if any
+def checkInbox(username):
+    # opens inbox.json as a list of inboxes
+    inboxes = getJson("inbox")
+
+    # search through inbox for current user's inbox
+    for inbox in inboxes:
+        # current user's inbox is found
+        if inbox["username"] == username:
+            # if inbox is not empty
+            if len(inbox["inbox"]) != 0:
+                # print message
+                for entry in inbox["inbox"]:
+                    message = entry["message"]
+                    sender = entry["senderUsername"]
+                    print(f"Message:  {message}")
+                    print(f"From: {sender}")
+
+                    # asks user if they would like to respond or delete this message, it is otherwise left in inbox
+                    response1 = input("Would you like to respond to this message? (yes/no)")
+                    if response1.lower() == "yes":
+                        # respond to that message using the sender's username
+                        sendMessage(username, entry["senderUsername"])
+                    response2 = input("Would you like to delete this message? (yes/no)")
+                    if response2.lower() == "yes":
+                        # removes message from the inbox
+                        inbox["inbox"].remove(entry)
+
+                        # opens inbox.json to update the inbox
+                        try:
+                            with open("inbox.json", "w") as f:
+                                json.dump(inboxes, f)
+                        except FileNotFoundError:
+                            print("inbox.json missing!")
+                            return
+            # inbox is empty
+            else:
+                print("Inbox is empty")
+        # current user's inbox is not found
+        else:
+            print(username, "'s inbox is not found")
+
+
+# this function checks if the current user has any messages at startup
+def checkMessageStart(username):
+    # opens list of users as users
+    inboxes = getJson("inbox")
+
+    # search through users for username
+    for userInbox in inboxes:
+        # user's inbox is found
+        if userInbox["username"] == username:
+            # messages are found
+            if len(userInbox["inbox"]) != 0:
+                return True
+            # no messages are found
+            else:
+                return False
+        # user's inbox is not found
+        else:
+            return False
+
+
+# this function creates an empty inbox for the current user
+def createInbox(username):
+    # create empty inbox
+    newInbox = {}
+    newInbox["username"] = username
+    newInbox["inbox"] = []
+
+    # open list of inboxes to insert empty inbox
+    inboxes = getJson("inbox")
+    inboxes.append(newInbox)
+
+    # dump inboxes back into json
+    try:
+        with open("inbox.json", "w") as f:
+            json.dump(inboxes, f)
+    except:
+        print("inbox.json missing!")
+        return
+
+
+def checkAccountTier(username):
+    users = getJson("users")
+
+    for user in users:
+        if user["username"] == username:
+            return user["accountTier"]
