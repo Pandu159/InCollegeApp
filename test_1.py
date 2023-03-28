@@ -1,9 +1,12 @@
+import os
 import pytest
 from feed import *
 from network_utils import *
 from unittest.mock import patch, MagicMock, mock_open
 from unittest.mock import patch, mock_open
 import json
+
+from profiles import checkAccountTier, checkMessageStart, createInbox
 
 
 def test_homeScreen(capsys):
@@ -664,3 +667,56 @@ def test_showNotAppliedJobs(readUsers_mock, getJson_mock, capsys):
 
     assert out == expected_output
     pass
+
+def test_checkMessageStart():
+    test_username = "u2"
+    test_inbox_file = "test_inbox.json"
+
+    test_inbox_data = []
+    with open(test_inbox_file, "w") as f:
+        f.write(json.dumps(test_inbox_data))
+
+    assert not checkMessageStart(test_username)
+
+    test_inbox_data.append({"username": test_username, "inbox": []})
+    with open(test_inbox_file, "w") as f:
+        f.write(json.dumps(test_inbox_data))
+
+    assert not checkMessageStart(test_username)
+
+    os.remove(test_inbox_file)
+
+
+def test_checkAccountTier():
+    test_username = "u2"
+    test_account_tier = "Standard"
+    test_users_file = "test_users.json"
+
+    test_user_data = [{"username": test_username, "accountTier": test_account_tier}]
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    account_tier = checkAccountTier(test_username)
+    assert account_tier == test_account_tier
+
+    os.remove(test_users_file)
+
+def test_createInbox():
+    test_username = "u1"
+    test_inbox_file = "inbox"
+
+    if os.path.exists("inbox.json"):
+        os.remove("inbox.json")
+        
+    createInbox(test_username)
+    inboxes = getJson(test_inbox_file)
+
+    found = False
+    for inbox in inboxes:
+        if inbox["username"] == test_username:
+            found = True
+
+    assert found, f"inbox.json missing!"
+
+    if os.path.exists("inbox.json"):
+        os.remove("inbox.json")
