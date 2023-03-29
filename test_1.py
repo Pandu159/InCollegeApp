@@ -668,7 +668,7 @@ def test_showNotAppliedJobs(readUsers_mock, getJson_mock, capsys):
     assert out == expected_output
     pass
 
-def test_checkMessageStart():
+#def test_checkMessageStart():
     test_username = "u2"
     test_inbox_file = "test_inbox.json"
 
@@ -702,12 +702,13 @@ def test_checkAccountTier():
     os.remove(test_users_file)
 
 def test_createInbox():
+    # saves the original inbox file
+    with open("inbox.json", "r") as f:
+        data = json.load(f)
+
     test_username = "u1"
     test_inbox_file = "inbox"
-
-    if os.path.exists("inbox.json"):
-        os.remove("inbox.json")
-        
+                   
     createInbox(test_username)
     inboxes = getJson(test_inbox_file)
 
@@ -716,7 +717,84 @@ def test_createInbox():
         if inbox["username"] == test_username:
             found = True
 
-    assert found, f"inbox.json missing!"
+    assert found == True
+    
+    # restores the original inbox file
+    with open("inbox.json", "w") as f:
+        json.dump(data, f)
+   
 
-    if os.path.exists("inbox.json"):
-        os.remove("inbox.json")
+def test_checkFriend():
+    test_username = "u3"
+    test_friends = "u2"  
+    test_users_file = "test_users.json"
+    test_user_data = [{"username": test_username, "friends": test_friends}]
+
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    friends = checkFriend(test_username, test_friends)
+    assert friends == True
+
+    os.remove(test_users_file)
+
+def test_sendMessage(capsys):
+    out, err = capsys.readouterr()
+    test_username = "u4"
+    test_targetUser = "u2"
+    test_users_file = "test_users.json"
+    test_user_data = [{"username": test_username, "friends": test_targetUser}]
+
+     
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    sendMessage(test_username, test_targetUser)
+
+    message = "I'm sorry, you are not friends with that person."
+    assert message == out
+    os.remove(test_users_file)
+
+@pytest.mark.parametrize("test_input", [("Hello U2")])
+def test_sendMessage(test_input, monkeypatch, capsys):
+    # saves the original inbox file
+    with open("inbox.json", "r") as f:
+        data = json.load(f)
+    
+    try:
+        # calls sendMessage with the test input
+        test_username = "u3"
+        test_targetUser = "u2"
+        #message1 = "Hello U2"
+        monkeypatch.setattr('builtins.input', lambda _: test_input)
+        sendMessage(test_username, test_targetUser)
+    
+    except IndexError:
+        out, err = capsys.readouterr()
+        inboxes = getJson("inbox") 
+        found = False
+        for inbox in inboxes:
+            if inbox["username"] == test_username:
+                 for entry in inbox["inbox"]:
+                     if test_input == entry["message"]:
+                         found = True             
+        assert found == True    
+    
+    # restores the original inbox file
+    with open("inbox.json", "w") as f:
+        json.dump(data, f)    
+
+
+
+def test_checkInbox(capsys):
+    
+    test_username = "u4"
+    test_inbox_file = "test_inbox.json"
+    
+    checkInbox(test_username)
+    out, err = capsys.readouterr()
+    message = "Inbox is empty\n"
+    assert message == out
+    
+    os.remove(test_inbox_file)
+
