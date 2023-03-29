@@ -343,10 +343,12 @@ def checkInbox(username):
     # opens inbox.json as a list of inboxes
     inboxes = getJson("inbox")
 
+    found = False
     # search through inbox for current user's inbox
     for inbox in inboxes:
         # current user's inbox is found
         if inbox["username"] == username:
+            found = True
             # if inbox is not empty
             if len(inbox["inbox"]) != 0:
                 # print message
@@ -376,9 +378,9 @@ def checkInbox(username):
             # inbox is empty
             else:
                 print("Inbox is empty")
-        # current user's inbox is not found
-        else:
-            print(username, "'s inbox is not found")
+    # current user's inbox is not found after the loop completes
+    if found == False:
+        print(username, "'s inbox is not found") 
 
 
 # this function checks if the current user has any messages at startup
