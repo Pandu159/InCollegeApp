@@ -1,4 +1,5 @@
 import json
+from helper import *
 from datetime import datetime
 
 
@@ -69,3 +70,30 @@ def newJobPost(username):
     with open("users.json", "w") as f:
         json.dump(users, f)
 
+
+# this function checks the user has new notifications
+def checkNotifications(username):
+    # goes through users.json for notification of new username
+    users = getJson("users")
+    for user in users:
+        # user is found
+        if user["username"] == username:
+            # if the notifications are not empty
+            if user["notifications"] is not None:
+                # goes through notifications
+                for notification in user["notifications"]:
+                    # if the notification is a deleted Job
+                    if "deletedJob" in notification:
+                        deletedJob = notification["deletedJob"]
+                        print(f"A job that you applied for has been deleted:\n {deletedJob}\n")
+                    # if the notification is a new Student
+                    elif "newStudent" in notification:
+                        newStudent = notification["newStudent"]
+                        print(f"{newStudent} has joined inCollege\n")
+                # remove notifications
+                user["notifications"] = []
+                try:
+                    with open("users.json", "w") as f:
+                        json.dump(users, f)
+                except:
+                    FileNotFoundError

@@ -1,7 +1,6 @@
 # authentication
 import json
 from profiles import *
-
 from notifications import *
 
 
@@ -17,10 +16,26 @@ def writeUser(username, password, firstName, lastName, college, major, language,
               friends, friendRequests, profile, jobsApplied, jobsSaved, accountTier, lastApplied):
     data = readUsers()
 
+    # create new dictionary input for all users
+
+    # notify other users that this user has signed up
+    for user in data:
+        # if adding to list
+        if isinstance(user["notifications"], list):
+            newEntry = [{"newStudent": firstName + " " + lastName}]
+            newEntry.extend(user["notifications"])
+            user["notfications"] = newEntry
+        # if adding to a dict, convert to list
+        elif isinstance(user["notifications"], dict):
+            newEntry = {"newStudent": firstName + " " + lastName}
+            temp = [newEntry, user["notifications"]]
+            user["notifications"] = temp
+
     data.append(
         {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
          "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": [], "lastApplied": lastApplied, "newPosting": [], "newMessages": False})
+         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied,
+         "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": [], "lastApplied": lastApplied, "newPosting": [], "newMessages": False})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -117,6 +132,7 @@ def signIn():
                     numJobsApplied(username) #Number of jobs applied
                     newJobPost(username) #Prints if there is a new job posting
                     hasMessages(username) #Prints if user has new messages
+                    checkNotifications(username) # prints notifications, if any
 
                     return username
         print("User information invalid. Please enter again. ")

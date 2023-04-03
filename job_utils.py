@@ -253,14 +253,31 @@ def deleteJob(i, uName):
     # gets the dictionary of jobs
     jobs = getJson("jobs")    
  
-    # gets the job ID   
+    # gets the job name
     jobSelected = jobs[i-1]
-    jobIdentifier = jobSelected["jobID"]
+    jobName = jobSelected["title"]
 
     # gets list of the job applicants
     jobApplicants = []
     jobApplicants.append(jobSelected["applicants"])
 
+    # gets a list of users
+    users = getJson("users")
+
+    # searching through list of job applicants
+    for applicant in jobApplicants:
+        # searching through users
+        for user in users:
+            # if adding to list
+            if isinstance(user["notifications"], list):
+                newEntry = [{"deletedJob": jobName}]
+                newEntry.extend(user["notifications"])
+                user["notfications"] = newEntry
+            # if user == applicant, put job name in dictionary
+            if user["username"] == applicant:
+                newEntry = {"deletedJob": jobName}
+                temp = [newEntry, user["notifications"]]
+                user["notifications"] = temp
      
     jobs.remove(jobSelected)
     with open("jobs.json", "w") as f:
