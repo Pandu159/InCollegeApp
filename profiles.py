@@ -79,7 +79,6 @@ def createProfile(username):
         else:
             break
     writeProfile(username, title, major, university, about, experience, education)
-    updateUserInfo(username, "profile", "profile")
     print("Profile created successfully!")
     printProfile(username)
     selection = int(input("Input 0 to return to previous screen.\n"))
@@ -164,25 +163,24 @@ def formatInput(string):
 
 
 def viewMyProfile(username):
-    users = readUsers()
+    users = getJson("profiles")
     for user in users:
-        if user["username"] == username:
-            if user["profile"] is None:
-                print("You have not created your profile yet.")
-                selection = int(input("Input 0 to return to previous screen or 1 to Create your profile: "))
-                if selection == 0:
-                    returnToOption(selection, username)
-                else:
-                    createProfile(username)
+        if username not in user["username"]:
+            print("You have not created your profile yet.")
+            selection = int(input("Input 0 to return to previous screen or 1 to Create your profile: "))
+            if selection == 0:
+                returnToOption(selection, username)
             else:
-                printProfile(username)
+                createProfile(username)
+        else:
+            printProfile(username)
 
             selection1 = int(input("Input 0 to return to previous screen.\n"))
             returnToOption(selection1, username)
 
 
 def printProfile(username):
-    users = readUsers()
+    users = getJson("users")
     for user in users:
         if user["username"] == username:
             name = user["firstName"] + " " + user["lastName"]
@@ -217,7 +215,7 @@ def printProfile(username):
 
 
 def friendsProfile(username):
-    users = readUsers()
+    users = getJson("users")
 
     for user in users:
         if user["username"] == username:
@@ -226,7 +224,7 @@ def friendsProfile(username):
                 print("List of friends: ")
 
                 for friend in user["friends"]:
-                    users1 = readUsers()
+                    users1 = getJson("users")
 
                     listLine = {}
                     for userFriends in users1:
@@ -333,6 +331,18 @@ def sendMessage(username, targetUser):
         except FileNotFoundError:
             print("inbox.json missing!")
             return
+
+        with open("users.json", "r") as f:
+            users = json.load(f)
+
+        for user in users:
+            if user["username"] == targetUser:
+                user["newMessages"] = True
+                break
+
+        with open("users.json", "w") as f:
+            json.dump(users, f)
+
     # if current user is not friends with target user, it prints an error
     else:
         print("I'm sorry, you are not friends with that person.")

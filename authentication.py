@@ -2,6 +2,8 @@
 import json
 from profiles import *
 
+from notifications import *
+
 
 def readUsers():
     try:
@@ -12,13 +14,13 @@ def readUsers():
 
 
 def writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendRequests, profile, jobsApplied, jobsSaved, accountTier):
+              friends, friendRequests, profile, jobsApplied, jobsSaved, accountTier, lastApplied):
     data = readUsers()
 
     data.append(
         {"username": username, "password": password, "firstName": firstName, "lastName": lastName, "college": college,
          "major": major, "language": language, "inCollegeEmail": inCollegeEmail, "SMS": SMS, "targetedAds": targetedAds,
-         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": []})
+         "friends": friends, "friendRequests": friendRequests, "profile": profile, "jobsApplied": jobsApplied, "jobsSaved": jobsSaved, "accountTier": accountTier, "notifications": [], "lastApplied": lastApplied, "newPosting": [], "newMessages": False})
     with open("users.json", "w") as f:
         json.dump(data, f)
 
@@ -74,13 +76,14 @@ def signUp():
     jobsSaved = []
 
     accountTier = "Standard"
+    lastApplied = ""
     isAccountUpgraded = input("Would you like to upgrade your account to a plus membership for $10/month? (Y/n)")
 
     if isAccountUpgraded.lower() == 'y':
         accountTier = "Plus"
 
     writeUser(username, password, firstName, lastName, college, major, language, inCollegeEmail, SMS, targetedAds,
-              friends, friendsRequest, profile, jobsApplied, jobsSaved, accountTier)
+              friends, friendsRequest, profile, jobsApplied, jobsSaved, accountTier, lastApplied)
 
     # create empty inbox
     createInbox(username)
@@ -100,11 +103,21 @@ def signIn():
                 if password == user["password"]:
                     print("Successfully logged in!\n")
                     language = user["language"]
-                    print(f"Current Language is {language}")
+                    print(f"Current Language is {language} \n")
+
+                    if lastApplied(username):
+                        print("Remember – you're going to want to have a job when you graduate. Make sure that you "
+                              "start to apply for jobs today!\n")
 
                     # checks user's inbox
-                    if checkMessageStart(username):
-                        print("You have messages in your inbox!\n")
+                    #if checkMessageStart(username):
+                        #print("You have messages in your inbox!\n")
+
+                    hasProfile(username) #Checks profile
+                    numJobsApplied(username) #Number of jobs applied
+                    newJobPost(username) #Prints if there is a new job posting
+                    hasMessages(username) #Prints if user has new messages
+
                     return username
         print("User information invalid. Please enter again. ")
 
