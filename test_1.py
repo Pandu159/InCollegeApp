@@ -798,3 +798,99 @@ def test_checkInbox(capsys):
     
     os.remove(test_inbox_file)
 
+def test_lastApplied():
+    test_username = "u2"
+    test_lastApplied = "2023-04-02"
+    test_users_file = "test_users.json"
+    test_username1 = "u3"
+    test_lastApplied1 = "2023-03-02"
+
+    test_user_data = [{"username": test_username, "lastApplied": test_lastApplied}]
+    test_user_data1 = [{"username": test_username1, "lastApplied": test_lastApplied1}]
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data1))
+
+    last_Applied = lastApplied(test_username)
+    assert last_Applied == None
+
+    #last_Applied1 = lastApplied(test_username1)
+    #assert last_Applied1 == None
+
+    os.remove(test_users_file)
+
+def test_hasProfile(capsys):
+    test_username = "u4"
+    test_profile = "null"
+    test_users_file = "test_users.json"
+
+    test_user_data = [{"username": test_username, "profile": test_profile}]
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    hasProfile(test_username)
+    out, err = capsys.readouterr()
+    message = "Don't forget to create a profile\n\n"
+    assert message == out
+    
+    os.remove(test_users_file)
+
+def test_hasMessages(capsys):
+    test_username = "u2"
+    test_newMessages = True    
+    test_users_file = "test_users.json"
+
+    test_user_data = [{"username": test_username, "newMessages": test_newMessages}]
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    hasMessages(test_username)
+    out, err = capsys.readouterr()
+    message = "You have messages waiting for you\n\n"
+    assert message == out
+    
+    os.remove(test_users_file)
+
+def test_numJobsApplied(capsys):
+    test_username = "u3"
+    test_jobsApplied = [2493, 3435, 4589]
+    test_users_file = "test_users.json"
+
+    test_user_data = [{"username": test_username, "jobsApplied": test_jobsApplied}]
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    numJobsApplied(test_username)
+    out, err = capsys.readouterr()
+    message = "You have currently applied for 3 jobs\n\n"
+    assert message == out
+    
+    os.remove(test_users_file)
+
+def test_newJobPost(capsys):
+    test_username = "u2"
+    test_newPosting = [2493, 4056]
+    test_title1 = "Software Engineer"
+    test_title2 = "Data Analytics"
+    test_users_file = "test_users.json"
+    test_jobs_file = "test_jobs.json"
+
+    test_user_data = [{"username": test_username, "newPosting": test_newPosting}]
+    test_job_data = [{"jobID": 2493, "title": test_title1}, {"jobID": 4056, "title": test_title2}]
+
+
+    with open(test_users_file, "w") as f:
+        f.write(json.dumps(test_user_data))
+
+    with open(test_jobs_file, "w") as f:
+        f.write(json.dumps(test_job_data))
+
+    newJobPost(test_username)
+    out, err = capsys.readouterr()
+    message = "A new job Software Engineer has been posted.\nA new job Data Analytics has been posted.\n\n"
+    assert message == out
+    
+    os.remove(test_users_file)
+    os.remove(test_jobs_file)
