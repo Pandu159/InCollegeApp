@@ -2,6 +2,7 @@
 import json
 from profiles import *
 from notifications import *
+from profiles import createInbox
 
 
 def readUsers():

@@ -4,3 +4,5 @@
 .vscode/
 __pycache__/
 .DS_Store
+test_jobs.json
+test_users.json
